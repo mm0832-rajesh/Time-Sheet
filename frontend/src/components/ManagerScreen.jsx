@@ -1,11 +1,18 @@
 import React, { useState } from "react";
 import "./managerScreen.css";
+import { useLocation } from "react-router-dom";
 
 const ManagerScreen = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [assignBtn, setAssignBtn] = useState(false);
   const [editingMode, setEditingMode] = useState(false);
   const [editData, setEditData] = useState(null);
+
+  const location = useLocation();
+
+  const { manager } = location.state || {};
+
+  // console.log(manager);
 
   const [data, setData] = useState({
     employeeId: "",
@@ -33,7 +40,7 @@ const ManagerScreen = () => {
     setShowPopup(!showPopup);
     setEditingMode(false);
     setEditData(null);
-    setAssignBtn(!assignBtn)
+    setAssignBtn(!assignBtn);
   };
 
   const handleChange = (e) => {
@@ -58,11 +65,11 @@ const ManagerScreen = () => {
           item.employeeId === editData.employeeId ? data : item
         );
         setSaveData(updatedData);
-        setAssignBtn(!assignBtn)
+        setAssignBtn(!assignBtn);
       } else {
         setSaveData([...saveData, data]);
       }
-      setAssignBtn(!assignBtn)
+      setAssignBtn(!assignBtn);
       setShowPopup(false);
       setErrorMessage("");
       setData({
@@ -106,28 +113,36 @@ const ManagerScreen = () => {
                 <label htmlFor="employeeId">
                   Employee Id<span className="required">*</span>
                 </label>
-                <input
-                  type="text"
+                <select
                   name="employeeId"
                   id="employeeId"
-                  placeholder="Employee Id"
-                  required
                   value={data.employeeId}
                   onChange={handleChange}
-                />
+                >
+                  <option value="">Select Employee ID</option>
+                  {manager.employees.map((employee) => (
+                    <option key={employee.empId} value={employee.empId}>
+                      {employee.empId}
+                    </option>
+                  ))}
+                </select>
                 <br />
                 <label htmlFor="employeeName">
                   Employee Name<span className="required">*</span>
                 </label>
-                <input
-                  type="text"
+                <select
                   name="employeeName"
                   id="employeeName"
-                  placeholder="Employee Name"
-                  required
                   value={data.employeeName}
                   onChange={handleChange}
-                />
+                >
+                  <option value="">Select Employee Name</option>
+                  {manager.employees.map((employee) => (
+                    <option key={employee.empId} value={employee.empName}>
+                      {employee.empName}
+                    </option>
+                  ))}
+                </select>
                 <br />
                 <label htmlFor="taskName">
                   Task Name<span className="required">*</span>

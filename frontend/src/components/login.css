@@ -1,0 +1,18 @@
+.form-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+form {
+  background-color: cyan;
+  padding: 50px;
+  border-radius: 30px;
+}
+
+button {
+  background-color: green;
+  color: white;
+  border-radius: 10px;
+}

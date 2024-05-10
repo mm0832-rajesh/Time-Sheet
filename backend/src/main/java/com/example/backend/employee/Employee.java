@@ -38,6 +38,6 @@ public class Employee {
     @ManyToOne
     private Manager manager;
 
-    @OneToMany(mappedBy = "employee")
-    private List<Task> tasks;
+    // @OneToMany(mappedBy = "employee")
+    // private List<Task> tasks;
 }

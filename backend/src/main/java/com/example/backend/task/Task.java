@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
@@ -19,8 +21,8 @@ import lombok.NoArgsConstructor;
 public class Task {
 
     @Id
-    @Column(length = 10)
-    private String taskId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long taskId;
 
     @Column(length = 20)
     private String taskName;
@@ -30,13 +32,22 @@ public class Task {
     private String endDate;
 
     @Column(length = 5)
-    private Long totalHour;
+    private Long planedHour;
+
+    @Column(length = 5)
+    private Long billableHour;
+
+    @Column(length = 20)
+    private String employeeName;
+
+    @Column(length = 10)
+    private String employeeId;
 
     @JsonIgnore
     @ManyToOne
     private Manager manager;
 
-    @JsonIgnore
-    @ManyToOne
-    private Employee employee;
+    // @JsonIgnore
+    // @ManyToOne
+    // private Employee employee;
 }

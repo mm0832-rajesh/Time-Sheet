@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./managerScreen.css";
 import { useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const ManagerScreen = () => {
   const [showPopup, setShowPopup] = useState(false);
@@ -48,28 +49,53 @@ const ManagerScreen = () => {
     setData({ ...data, [name]: value });
   };
 
-  const saveHandler = () => {
-    if (
-      !data.employeeId ||
-      !data.employeeName ||
-      !data.taskName ||
-      !data.startDate ||
-      !data.endDate
-    ) {
-      setErrorMessage("Please fill in all required fields.");
-    } else if (new Date(data.endDate) < new Date(data.startDate)) {
-      setErrorMessage("End date cannot be less than start date.");
-    } else {
+  const saveHandler = async () => {
+    try {
+      if (
+        !data.employeeId ||
+        !data.employeeName ||
+        !data.taskName ||
+        !data.startDate ||
+        !data.endDate
+      ) {
+        setErrorMessage("Please fill in all required fields.");
+        return;
+      } else if (new Date(data.endDate) < new Date(data.startDate)) {
+        setErrorMessage("End date cannot be less than start date.");
+        return;
+      }
+
+      let uri = editingMode
+        ? `http://localhost:8000/task/${editData.employeeId}`
+        : "http://localhost:8000/task";
+
+      // console.log(uri+" :- "+data);
+
+      const requestOptions = {
+        method: editingMode ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      };
+
+      const response = await fetch(uri, requestOptions);
+
+      if (!response.ok) {
+        throw new Error("Failed to save data.");
+      }
+
+      const text = await response.text();
+      console.log("Data saved successfully:", text);
+
       if (editingMode) {
         const updatedData = saveData.map((item) =>
           item.employeeId === editData.employeeId ? data : item
         );
         setSaveData(updatedData);
-        setAssignBtn(!assignBtn);
       } else {
         setSaveData([...saveData, data]);
+        // setAssignBtn(!assignBtn);
       }
-      setAssignBtn(!assignBtn);
+      setAssignBtn(false);
       setShowPopup(false);
       setErrorMessage("");
       setData({
@@ -81,15 +107,21 @@ const ManagerScreen = () => {
         planedHour: 0,
         billableHour: 0,
       });
+    } catch (error) {
+      console.error("Error saving data:", error);
+      setErrorMessage("Failed to save data. Please try again later.");
     }
   };
 
   const editHandler = (id) => {
     const selectedItem = saveData.find((item) => item.employeeId === id);
+    // console.log(selectedItem);
     setData(selectedItem);
     setEditingMode(true);
     setShowPopup(true);
     setEditData(selectedItem);
+    // console.log(editData);
+    setAssignBtn(false);
   };
 
   return (
@@ -98,6 +130,9 @@ const ManagerScreen = () => {
         <button className="task-btn" onClick={togglePopup} disabled={assignBtn}>
           Assign Task
         </button>
+        <Link to="/holiday" style={{ textDecoration: "none" }}>
+          <div className="holiday">Holiday</div>
+        </Link>
       </div>
 
       {showPopup && (

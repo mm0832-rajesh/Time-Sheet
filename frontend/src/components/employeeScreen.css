@@ -4,9 +4,16 @@
   flex-direction: column;
 }
 
-.empHeader {
+.top {
   width: 100%;
   background-color: rgb(66, 66, 247);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.empHeader {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -15,4 +22,30 @@
 
 .avatar {
   font-size: 30px;
+}
+
+.holiday {
+  color: white;
+  font-weight: bold;
+}
+
+.holiday:hover {
+  padding: 3px;
+  cursor: pointer;
+  background-color: rgb(89, 89, 236);
+  color: yellow;
+  border-radius: 10px;
+}
+
+.sickLeave,
+.casualLeave {
+  margin: 5px;
+  height: 200px;
+  width: 300px;
+  border-radius: 10px;
+  background-color: beige;
+  border: 2px solid black;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
 }

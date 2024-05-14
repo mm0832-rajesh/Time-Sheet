@@ -87,7 +87,7 @@ const Login = () => {
         />
         <br />
         <br />
-        <button type="submit">Login</button>
+        <button className="submitBtn" type="submit">Login</button>
       </form>
     </div>
   );

@@ -1,0 +1,58 @@
+.status {
+  display: flex;
+  border: 2px solid grey;
+  height: 200px;
+  width: 600px;
+}
+
+.statusContainer {
+  padding-top: 5%;
+  flex: 1;
+}
+
+.inputField {
+  margin-bottom: 10px;
+}
+
+.infoContainer {
+  padding-top: 5%;
+  padding-left: 30%;
+  flex: 1;
+}
+
+.day {
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+}
+
+.box {
+  width: 10px;
+  height: 10px;
+  border: 1px solid black;
+  margin-right: 5px;
+}
+
+.violet {
+  background-color: rgb(191, 130, 238);
+}
+
+.red {
+  background-color: red;
+}
+
+.darkGreen {
+  background-color: green;
+}
+
+.green {
+  background-color: greenyellow;
+}
+
+.sky {
+  background-color: skyblue;
+}
+
+.blue {
+  background-color: blue;
+}

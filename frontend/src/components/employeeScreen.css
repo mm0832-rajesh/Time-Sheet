@@ -1,51 +1,122 @@
 .empScreen-container {
   display: flex;
-  flex-wrap: wrap;
   flex-direction: column;
+  font-family: Arial, sans-serif;
+  height: 100vh;
 }
 
 .top {
   width: 100%;
   background-color: rgb(66, 66, 247);
   display: flex;
-  flex-direction: row;
   align-items: center;
   justify-content: space-between;
+  padding: 10px;
+  color: white;
 }
 
 .empHeader {
   display: flex;
-  flex-direction: row;
   align-items: center;
-  color: white;
 }
 
 .avatar {
   font-size: 30px;
+  margin-right: 10px;
 }
 
-.holiday {
-  color: white;
-  font-weight: bold;
+.empName {
+  font-size: 18px;
 }
 
-.holiday:hover {
-  padding: 3px;
+.navOptions {
+  display: flex;
+  gap: 10px;
+}
+
+.timesheet,
+.holiday,
+.leave {
   cursor: pointer;
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.timesheet:hover,
+.holiday:hover,
+.leave:hover {
   background-color: rgb(89, 89, 236);
   color: yellow;
-  border-radius: 10px;
+}
+
+.empTimesheetBody {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.leaveBody {
+  display: flex;
+  gap: 20px;
 }
 
 .sickLeave,
 .casualLeave {
-  margin: 5px;
-  height: 200px;
-  width: 300px;
-  border-radius: 10px;
   background-color: beige;
   border: 2px solid black;
+  border-radius: 10px;
+  padding: 10px;
+  width: 250px;
   display: flex;
-  flex-wrap: wrap;
   flex-direction: column;
+  align-items: center;
+}
+
+.leaveTitle {
+  color: yellowgreen;
+}
+
+.leaveCount {
+  text-align: center;
+}
+
+.timesheetContainer {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding: 20px;
+}
+
+.upperPart {
+  text-align: center;
+  margin-bottom: 20px;
+  flex-grow: 1;
+}
+
+.lowerPart {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-top: auto;
+}
+
+.react-calendar {
+  background-color: burlywood;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  border-radius: 10px;
+}
+
+.today {
+  background-color: rgb(240, 135, 240);
+}
+
+.weekend {
+  background-color: rgb(90, 215, 215);
+}
+
+.holiday1 {
+  background-color: red;
 }

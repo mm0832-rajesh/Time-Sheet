@@ -199,8 +199,8 @@ const EmployeeScreen = () => {
                 </thead>
                 <tbody>
                   <tr>
-                    <td>Total = 0</td>
-                    <td></td>
+                    <td>Total Hour</td>
+                    <td>0</td>
                     {Array.from({ length: visibleDays }, (_, index) => (
                       <td key={index}>
                         <input type="number" disabled />

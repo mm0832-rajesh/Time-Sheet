@@ -9,6 +9,7 @@ const EmployeeScreen = () => {
   const [showHoliday, setShowHoliday] = useState(false);
   const [showLeave, setShowLeave] = useState(false);
   const [showTimesheet, setShowTimesheet] = useState(true);
+  const [visibleDays, setVisibleDays] = useState(0);
 
   const [date, setDate] = useState(new Date());
   const [holidayData, setHolidayData] = useState([]);
@@ -53,6 +54,16 @@ const EmployeeScreen = () => {
     return "";
   };
 
+  const handleActiveStartDateChange = ({ activeStartDate, view }) => {
+    if (view === "month") {
+      const year = activeStartDate.getFullYear();
+      const month = activeStartDate.getMonth();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      // console.log("Result is :" + daysInMonth);
+      setVisibleDays(daysInMonth);
+    }
+  };
+
   const location = useLocation();
   const { employee } = location.state || {};
 
@@ -87,6 +98,30 @@ const EmployeeScreen = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  // useEffect(() => {
+  //   console.log(`Rendering input fields for ${visibleDays} days`);
+  // }, [visibleDays]);
+
+  useEffect(() => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    const activeStartDate = new Date(year, month, 1);
+    handleActiveStartDateChange({ activeStartDate, view: "month" });
+  }, []);
+
+  const saveTimesheetHandler = () => {
+    console.log("Save Timesheet");
+  };
+
+  const submitTimesheetHandler = () => {
+    console.log("Submit Timesheet");
+  };
+
+  const downloadTimesheetHandler = () => {
+    console.log("Download Timesheet");
+  };
 
   return (
     <div className="empScreen-container">
@@ -134,13 +169,54 @@ const EmployeeScreen = () => {
       {showTimesheet && (
         <div className="timesheetContainer">
           <div className="upperPart">
-            <h1>Upper Part fillup</h1>
+            <div className="timesheetBtns">
+              <button className="saveTimesheet" onClick={saveTimesheetHandler}>
+                Save
+              </button>
+              <button
+                className="submitTimesheet"
+                onClick={submitTimesheetHandler}
+              >
+                Submit
+              </button>
+              <button
+                className="downloadTimesheet"
+                onClick={downloadTimesheetHandler}
+              >
+                Download
+              </button>
+            </div>
+            <div className="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Description</th>
+                    <th>TH</th>
+                    {Array.from({ length: visibleDays }, (_, index) => (
+                      <th key={index}>{index + 1}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Total = 0</td>
+                    <td></td>
+                    {Array.from({ length: visibleDays }, (_, index) => (
+                      <td key={index}>
+                        <input type="number" disabled />
+                      </td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
           <div className="lowerPart">
             <Calendar
               onChange={onChange}
               value={date}
               tileClassName={getClassName}
+              onActiveStartDateChange={handleActiveStartDateChange}
             />
             <Status />
           </div>

@@ -1,5 +1,6 @@
 package com.example.backend.task.impl;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +69,11 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public boolean deleteTask(String employeeId) {
         return taskRepo.deleteByEmployeeId(employeeId);
+    }
+
+    @Override
+    public List<Task> getAllTasks() {
+        return taskRepo.findAll();
     }
 
 }

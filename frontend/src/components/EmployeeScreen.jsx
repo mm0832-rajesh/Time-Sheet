@@ -14,6 +14,13 @@ const EmployeeScreen = () => {
   const [date, setDate] = useState(new Date());
   const [holidayData, setHolidayData] = useState([]);
 
+  const [taskData, setTaskData] = useState([]);
+  const [empTaskData, setEmpTaskData] = useState([]);
+
+  const [hours, setHours] = useState({});
+
+  const [timesheetData, setTimesheetData] = [];
+
   const onChange = (date) => {
     setDate(date);
   };
@@ -59,7 +66,6 @@ const EmployeeScreen = () => {
       const year = activeStartDate.getFullYear();
       const month = activeStartDate.getMonth();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
-      // console.log("Result is :" + daysInMonth);
       setVisibleDays(daysInMonth);
     }
   };
@@ -99,10 +105,6 @@ const EmployeeScreen = () => {
     fetchData();
   }, []);
 
-  // useEffect(() => {
-  //   console.log(`Rendering input fields for ${visibleDays} days`);
-  // }, [visibleDays]);
-
   useEffect(() => {
     const today = new Date();
     const year = today.getFullYear();
@@ -112,15 +114,52 @@ const EmployeeScreen = () => {
   }, []);
 
   const saveTimesheetHandler = () => {
-    console.log("Save Timesheet");
+    let totalHours = 0;
+    for (const taskId in hours) {
+      for (const day in hours[taskId]) {
+        totalHours += Number(hours[taskId][day] || 0);
+      }
+    }
+    console.log("Total Hours:", totalHours);
   };
 
   const submitTimesheetHandler = () => {
     console.log("Submit Timesheet");
   };
 
-  const downloadTimesheetHandler = () => {
-    console.log("Download Timesheet");
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/task");
+        const tasksData = await response.json();
+        setTaskData(tasksData);
+      } catch (error) {
+        console.log(`Error is :- ${error}`);
+      }
+    };
+    fetchTasks();
+  }, []);
+
+  useEffect(() => {
+    const matchEmpId = () => {
+      if (taskData.length && employee) {
+        const result = taskData.filter(
+          (item) => item.employeeId === employee.empId
+        );
+        setEmpTaskData(result);
+      }
+    };
+    matchEmpId();
+  }, [taskData, employee]);
+
+  const handleHourChange = (taskId, day, value) => {
+    setHours((prevHours) => ({
+      ...prevHours,
+      [taskId]: {
+        ...prevHours[taskId],
+        [day]: value,
+      },
+    }));
   };
 
   return (
@@ -179,12 +218,6 @@ const EmployeeScreen = () => {
               >
                 Submit
               </button>
-              <button
-                className="downloadTimesheet"
-                onClick={downloadTimesheetHandler}
-              >
-                Download
-              </button>
             </div>
             <div className="table-container">
               <table>
@@ -198,15 +231,30 @@ const EmployeeScreen = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>Total Hour</td>
-                    <td>0</td>
-                    {Array.from({ length: visibleDays }, (_, index) => (
-                      <td key={index}>
-                        <input type="number" disabled />
+                  {empTaskData.map((task, taskIndex) => (
+                    <tr key={taskIndex}>
+                      <td>{task.description}</td>
+                      <td>
+                        {Object.values(hours[task.id] || {}).reduce(
+                          (acc, hour) => acc + Number(hour || 0),
+                          0
+                        )}
                       </td>
-                    ))}
-                  </tr>
+                      {Array.from({ length: visibleDays }, (_, dayIndex) => (
+                        <td key={dayIndex}>
+                          <input
+                            type="number"
+                            value={
+                              (hours[task.id] && hours[task.id][dayIndex + 1]) || ""
+                            }
+                            onChange={(e) =>
+                              handleHourChange(task.id, dayIndex + 1, e.target.value)
+                            }
+                          />
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>

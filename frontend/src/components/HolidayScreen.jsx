@@ -50,13 +50,11 @@ const HolidayScreen = () => {
           onChange={handleChange}
           value={selectedLocation}
         >
-          {location.map((item, index) => {
-            return (
-              <option value={item.holidayLocation} key={index}>
-                {item.holidayLocation}
-              </option>
-            );
-          })}
+          {location.map((item, index) => (
+            <option value={item.holidayLocation} key={index}>
+              {item.holidayLocation} Location Office
+            </option>
+          ))}
         </select>
       </div>
 

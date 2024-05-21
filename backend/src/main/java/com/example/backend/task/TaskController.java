@@ -1,5 +1,7 @@
 package com.example.backend.task;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,9 +34,19 @@ public class TaskController {
         }
     }
 
+    @GetMapping
+    public ResponseEntity<List<Task>> getAllTasks() {
+        if (taskServiceImpl.getAllTasks().size() != 0) {
+            return new ResponseEntity<>(taskServiceImpl.getAllTasks(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(taskServiceImpl.getAllTasks(), HttpStatus.NOT_FOUND);
+        }
+    }
+
     @PutMapping("/{employeeId}")
     public ResponseEntity<String> updateTask(@RequestBody Task updateTask, @PathVariable String employeeId) {
         return taskServiceImpl.updateTask(updateTask, employeeId) ? new ResponseEntity<>("Task updated", HttpStatus.OK)
                 : new ResponseEntity<>("Task updated", HttpStatus.NOT_IMPLEMENTED);
     }
+
 }

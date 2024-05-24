@@ -1,36 +1,58 @@
 .status {
   display: flex;
   border: 2px solid grey;
-  height: 200px;
+  padding: 20px;
+  height: auto;
   width: 600px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  background-color: #f9f9f9;
 }
 
 .statusContainer {
-  padding-top: 5%;
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .inputField {
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.inputField label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.inputField input {
+  width: calc(100% - 10px);
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 .infoContainer {
-  padding-top: 5%;
-  padding-left: 30%;
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 20px;
 }
 
 .day {
-  margin-bottom: 3px;
+  margin-bottom: 10px;
   display: flex;
   align-items: center;
 }
 
 .box {
-  width: 10px;
-  height: 10px;
+  width: 15px;
+  height: 15px;
   border: 1px solid black;
-  margin-right: 5px;
+  margin-right: 10px;
+  border-radius: 3px;
 }
 
 .violet {
@@ -55,4 +77,8 @@
 
 .blue {
   background-color: blue;
+}
+
+.dayName {
+  font-size: 14px;
 }

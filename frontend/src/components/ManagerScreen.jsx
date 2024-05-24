@@ -5,6 +5,7 @@ import { useLocation } from "react-router-dom";
 import HolidayScreen from "./HolidayScreen";
 import Calendar from "react-calendar";
 import Status from "./Status";
+import LeaveScreen from "./LeaveScreen";
 
 const ManagerScreen = () => {
   const [showPopup, setShowPopup] = useState(false);
@@ -19,6 +20,13 @@ const ManagerScreen = () => {
   const [date, setDate] = useState(new Date());
   const [holidayData, setHolidayData] = useState([]);
   const [visibleDays, setVisibleDays] = useState(0);
+
+  const [active, setActive] = useState("timesheet");
+
+  const handleOptionClick = (option, handler) => {
+    setActive(option);
+    handler();
+  };
 
   const location = useLocation();
 
@@ -237,11 +245,11 @@ const ManagerScreen = () => {
 
   return (
     <div className="container">
-      <div className="header">
+      {/* <div className="header">
         <button className="task-btn" onClick={togglePopup} disabled={assignBtn}>
           Assign Task
         </button>
-        {/* <Link to="/holiday" style={{ textDecoration: "none" }}> */}
+        
         <div className="timesheet" onClick={timesheetHandler}>
           Timesheet
         </div>
@@ -251,7 +259,41 @@ const ManagerScreen = () => {
         <div className="leave" onClick={leaveHandler}>
           Leave
         </div>
-        {/* </Link> */}
+       
+      </div> */}
+
+      <div className="top">
+        <div className="empHeader">
+          <div className="avatar">🧑‍💼</div>
+          <div className="empName">Hi Manager</div>
+        </div>
+        <div className="navOptions">
+          <button
+            className="task-btn"
+            onClick={togglePopup}
+            disabled={assignBtn}
+          >
+            Assign Task
+          </button>
+          <div
+            className={`timesheet ${active === "timesheet" ? "active" : ""}`}
+            onClick={() => handleOptionClick("timesheet", timesheetHandler)}
+          >
+            Timesheet
+          </div>
+          <div
+            className={`holiday ${active === "holiday" ? "active" : ""}`}
+            onClick={() => handleOptionClick("holiday", holidayBtnHandler)}
+          >
+            Holiday
+          </div>
+          <div
+            className={`leave ${active === "leave" ? "active" : ""}`}
+            onClick={() => handleOptionClick("leave", leaveHandler)}
+          >
+            Leave
+          </div>
+        </div>
       </div>
 
       {showPopup && (
@@ -420,6 +462,7 @@ const ManagerScreen = () => {
               </div>
             </div>
           </div>
+          <LeaveScreen />
         </div>
       )}
       {showTimesheet && (
@@ -429,7 +472,6 @@ const ManagerScreen = () => {
               <button className="saveTimesheet">Save</button>
               <button className="submitTimesheet">Submit</button>
             </div>
-           
 
             <div className="table-container">
               <table>
@@ -455,7 +497,6 @@ const ManagerScreen = () => {
                 </tbody>
               </table>
             </div>
-            
           </div>
           <div className="lowerPart">
             <Calendar

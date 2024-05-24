@@ -8,7 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -38,5 +40,21 @@ public class TimesheetController {
         } else {
             return new ResponseEntity<>(timesheetServiceImpl.getAllTimesheets(), HttpStatus.NOT_FOUND);
         }
+    }
+
+    @GetMapping("/{employeeId}")
+    public ResponseEntity<List<Timesheet>> getTimesheetByEmployeeId(@PathVariable String employeeId) {
+        if (timesheetServiceImpl.getTimeSheetByEmpId(employeeId).size() != 0) {
+            return new ResponseEntity<>(timesheetServiceImpl.getTimeSheetByEmpId(employeeId), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(timesheetServiceImpl.getTimeSheetByEmpId(employeeId), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PutMapping("/{employeeId}")
+    public ResponseEntity<String> updateTask(@RequestBody Timesheet updateTimesheet, @PathVariable String employeeId) {
+        return timesheetServiceImpl.updateTimesheetByEmpId(updateTimesheet, employeeId)
+                ? new ResponseEntity<>("Timesheet updated", HttpStatus.OK)
+                : new ResponseEntity<>("Timesheet not updated", HttpStatus.NOT_IMPLEMENTED);
     }
 }

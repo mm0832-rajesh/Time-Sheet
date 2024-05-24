@@ -46,7 +46,7 @@ public class TaskController {
     @PutMapping("/{employeeId}")
     public ResponseEntity<String> updateTask(@RequestBody Task updateTask, @PathVariable String employeeId) {
         return taskServiceImpl.updateTask(updateTask, employeeId) ? new ResponseEntity<>("Task updated", HttpStatus.OK)
-                : new ResponseEntity<>("Task updated", HttpStatus.NOT_IMPLEMENTED);
+                : new ResponseEntity<>("Task not updated", HttpStatus.NOT_IMPLEMENTED);
     }
 
 }

@@ -66,7 +66,7 @@ const Login = () => {
 
   return (
     <div className="form-container">
-      <form onSubmit={submitHandler}>
+      <form className="loginform" onSubmit={submitHandler}>
         <input
           type="text"
           name="id"

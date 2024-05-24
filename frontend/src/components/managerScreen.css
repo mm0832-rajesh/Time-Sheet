@@ -1,20 +1,21 @@
 .container {
+  width: 100%;
   display: flex;
   flex-direction: column;
   font-family: 'Roboto', sans-serif;
   height: 100vh;
-  background-color: #f5f5f5;
+  /* background-color: #f5f5f5; */
 }
 
 .header {
   width: 100%;
-  max-width: 1259px;
-  background: linear-gradient(90deg, #709bf9, #5c8ced);
-  padding: 20px;
+  /* max-width: 1259px; */
+  background-color: #57575c;
+  /* padding: 20px; */
   display: flex;
   justify-content: flex-end; /* Keep the components aligned to the right */
   align-items: center;
-  gap: 20px; /* Add space between the components */
+  gap: 20px; 
 }
 
 .task-btn {
@@ -184,42 +185,6 @@ td {
   justify-content: space-around;
   align-items: center;
   margin-top: auto;
-}
-
-.react-calendar {
-  background-color: #d2b48c;
-  width: 100%;
-  max-width: 400px;
-  margin: 0 auto;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.today {
-  background-color: #f8419c;
-  color: white;
-  font-weight: bold;
-  /* border-radius: 50%; */
-}
-
-.weekend {
-  background-color: #5ecfdf;
-  color: white;
-  font-weight: bold;
-  /* border-radius: 50%; */
-}
-
-.holiday1 {
-  background-color: #fa2323;
-  color: white;
-  font-weight: bold;
-  /* border-radius: 50%; */
-}
-
-.timesheetBtns {
-  margin: 5px;
-  display: flex;
-  justify-content: flex-end;
 }
 
 .saveTimesheet,

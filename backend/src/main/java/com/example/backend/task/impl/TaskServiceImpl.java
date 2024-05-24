@@ -1,14 +1,14 @@
 package com.example.backend.task.impl;
 
 import java.util.List;
-import java.util.Optional;
+// import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.backend.employee.Employee;
-import com.example.backend.employee.EmployeeRepo;
-import com.example.backend.employee.impl.EmployeeServiceImpl;
+// import com.example.backend.employee.Employee;
+// import com.example.backend.employee.EmployeeRepo;
+// import com.example.backend.employee.impl.EmployeeServiceImpl;
 import com.example.backend.manager.Manager;
 import com.example.backend.manager.ManagerRepo;
 import com.example.backend.manager.impl.ManagerServiceImpl;
@@ -58,6 +58,8 @@ public class TaskServiceImpl implements TaskService {
             task.setPlanedHour(updateTask.getPlanedHour());
             task.setBillableHour(updateTask.getBillableHour());
             task.setEmployeeName(updateTask.getEmployeeName());
+            task.setStatus(updateTask.getStatus());
+            task.setRemarks(updateTask.getRemarks());
             // task.setEmployeeId(updateTask.getEmployeeId());
             taskRepo.save(task);
             return true;

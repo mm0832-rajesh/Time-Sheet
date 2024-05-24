@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import HolidayScreen from "./HolidayScreen";
 import Calendar from "react-calendar";
 import Status from "./Status";
+import LeaveScreen from "./LeaveScreen";
 
 const EmployeeScreen = () => {
   const [showHoliday, setShowHoliday] = useState(false);
@@ -19,7 +20,16 @@ const EmployeeScreen = () => {
 
   const [hours, setHours] = useState({});
 
-  const [timesheetData, setTimesheetData] = [];
+  const [isDisabled, setIsDisabled] = useState(false);
+
+  const [active, setActive] = useState("timesheet");
+
+  const handleOptionClick = (option, handler) => {
+    setActive(option);
+    handler();
+  };
+
+  // const [timesheetEmpData, setTimesheetEmpData] = useState([]);
 
   const onChange = (date) => {
     setDate(date);
@@ -73,6 +83,8 @@ const EmployeeScreen = () => {
   const location = useLocation();
   const { employee } = location.state || {};
 
+  // console.log(employee);
+
   const holidayHandler = () => {
     setShowHoliday(true);
     setShowLeave(false);
@@ -113,18 +125,128 @@ const EmployeeScreen = () => {
     handleActiveStartDateChange({ activeStartDate, view: "month" });
   }, []);
 
-  const saveTimesheetHandler = () => {
-    let totalHours = 0;
-    for (const taskId in hours) {
-      for (const day in hours[taskId]) {
-        totalHours += Number(hours[taskId][day] || 0);
-      }
+  //Check
+  const checkIfTimesheetExists = async (employeeId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8000/timesheet/${employeeId}`
+      );
+      const data = await response.json();
+      console.log(data.length);
+      return data.length;
+    } catch (error) {
+      console.error("Error checking timesheet existence:", error);
+      return false;
     }
-    console.log("Total Hours:", totalHours);
   };
 
-  const submitTimesheetHandler = () => {
-    console.log("Submit Timesheet");
+  const saveTimesheetHandler = async () => {
+    const timesheetData = {
+      inputHour: 0,
+      date: new Date().toISOString().split("T")[0],
+      employeeId: employee.empId,
+    };
+
+    for (const taskId in hours) {
+      for (const day in hours[taskId]) {
+        timesheetData.inputHour += Number(hours[taskId][day] || 0);
+      }
+    }
+
+    const timesheetExists = await checkIfTimesheetExists(employee.empId);
+
+    console.log(timesheetExists);
+
+    try {
+      const response = await fetch(
+        `http://localhost:8000/timesheet${
+          timesheetExists ? `/${employee.empId}` : ""
+        }`,
+        {
+          method: timesheetExists ? "PUT" : "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(timesheetData),
+        }
+      );
+
+      if (response.ok) {
+        console.log("Timesheet data saved successfully.");
+      } else {
+        console.error("Failed to save timesheet data:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error saving timesheet data:", error);
+    }
+  };
+
+  const submitTimesheetHandler = async () => {
+    console.log("Submit Timesheet: ", empTaskData);
+
+    // Validate hours
+    for (const taskId in hours) {
+      for (let day = 1; day <= visibleDays; day++) {
+        const hourValue = hours[taskId]?.[day];
+
+        // Create a new date object for the current day
+        const currentDate = new Date(date.getFullYear(), date.getMonth(), day);
+        const dayOfWeek = currentDate.getDay();
+        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+        const dateString = `${currentDate.toLocaleString("default", {
+          month: "short",
+        })} ${currentDate.getDate()}`;
+        const isHoliday = holidayData.some((holiday) => {
+          const extractedDate = extractMonthAndDate(holiday.date);
+          return extractedDate === dateString;
+        });
+
+        // If the day is not a holiday or weekend, check for empty or exceeding hours
+        if (!isHoliday && !isWeekend) {
+          if (hourValue === undefined || hourValue === "") {
+            alert(`Hours for task ID ${taskId} on day ${day} cannot be empty.`);
+            return; // Stop submission if validation fails
+          }
+          if (Number(hourValue) > 8) {
+            alert(
+              `Hours for task ID ${taskId} on day ${day} exceed the maximum limit of 8.`
+            );
+            return; // Stop submission if validation fails
+          }
+        }
+      }
+    }
+
+    const updatedEmpTaskData = empTaskData.map((task) => ({
+      ...task,
+      status: "submited",
+    }));
+
+    // Update the state with the new data
+    setEmpTaskData(updatedEmpTaskData);
+    // setIsDisabled(true);
+
+    try {
+      const response = await fetch(
+        `http://localhost:8000/task/${employee.empId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(...updatedEmpTaskData),
+        }
+      );
+
+      if (response.ok) {
+        console.log("Tasks submitted successfully.");
+        setIsDisabled(true);
+      } else {
+        console.error("Failed to submit tasks:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error submitting tasks:", error);
+    }
   };
 
   useEffect(() => {
@@ -152,6 +274,13 @@ const EmployeeScreen = () => {
     matchEmpId();
   }, [taskData, employee]);
 
+  useEffect(() => {
+    const shouldDisable = empTaskData.some(
+      (task) => task.status === "submitted" || task.status === "approved"
+    );
+    setIsDisabled(shouldDisable);
+  }, [empTaskData]);
+
   const handleHourChange = (taskId, day, value) => {
     setHours((prevHours) => ({
       ...prevHours,
@@ -162,6 +291,20 @@ const EmployeeScreen = () => {
     }));
   };
 
+  // Previous month button handler
+  // const prevMonthHandler = () => {
+  //   const prevMonthDate = new Date(date.getFullYear(), date.getMonth() - 1, 1);
+  //   // setDate(prevMonthDate);
+  //   console.log(prevMonthDate);
+  // };
+
+  // // Next month button handler
+  // const nextMonthHandler = () => {
+  //   const nextMonthDate = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+  //   // setDate(nextMonthDate);
+  //   console.log(nextMonthDate);
+  // };
+
   return (
     <div className="empScreen-container">
       <div className="top">
@@ -170,13 +313,22 @@ const EmployeeScreen = () => {
           <div className="empName">Hi {employee?.empName || "Employee"}</div>
         </div>
         <div className="navOptions">
-          <div className="timesheet" onClick={timesheetHandler}>
+          <div
+            className={`timesheet ${active === "timesheet" ? "active" : ""}`}
+            onClick={() => handleOptionClick("timesheet", timesheetHandler)}
+          >
             Timesheet
           </div>
-          <div className="holiday" onClick={holidayHandler}>
+          <div
+            className={`holiday ${active === "holiday" ? "active" : ""}`}
+            onClick={() => handleOptionClick("holiday", holidayHandler)}
+          >
             Holiday
           </div>
-          <div className="leave" onClick={leaveHandler}>
+          <div
+            className={`leave ${active === "leave" ? "active" : ""}`}
+            onClick={() => handleOptionClick("leave", leaveHandler)}
+          >
             Leave
           </div>
         </div>
@@ -203,6 +355,7 @@ const EmployeeScreen = () => {
               </div>
             </div>
           </div>
+          <LeaveScreen />
         </div>
       )}
       {showTimesheet && (
@@ -223,7 +376,7 @@ const EmployeeScreen = () => {
               <table>
                 <thead>
                   <tr>
-                    <th>Description</th>
+                    <th>Task</th>
                     <th>TH</th>
                     {Array.from({ length: visibleDays }, (_, index) => (
                       <th key={index}>{index + 1}</th>
@@ -231,37 +384,53 @@ const EmployeeScreen = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {empTaskData.map((task, taskIndex) => (
-                    <tr key={taskIndex}>
-                      <td>{task.description}</td>
-                      <td>
-                        {Object.values(hours[task.id] || {}).reduce(
-                          (acc, hour) => acc + Number(hour || 0),
-                          0
-                        )}
-                      </td>
-                      {Array.from({ length: visibleDays }, (_, dayIndex) => (
-                        <td key={dayIndex}>
-                          <input
-                            type="number"
-                            value={
-                              (hours[task.id] && hours[task.id][dayIndex + 1]) || ""
-                            }
-                            onChange={(e) =>
-                              handleHourChange(task.id, dayIndex + 1, e.target.value)
-                            }
-                          />
+                  {empTaskData.length ? (
+                    empTaskData.map((task, taskIndex) => (
+                      <tr key={taskIndex}>
+                        <td>{task.taskName}</td>
+                        <td>
+                          {Object.values(hours[task.id] || {}).reduce(
+                            (acc, hour) => acc + Number(hour || 0),
+                            0
+                          )}
                         </td>
-                      ))}
-                    </tr>
-                  ))}
+                        {Array.from({ length: visibleDays }, (_, dayIndex) => (
+                          <td key={dayIndex}>
+                            <input
+                              type="number"
+                              value={
+                                (hours[task.id] &&
+                                  hours[task.id][dayIndex + 1]) ||
+                                ""
+                              }
+                              onChange={(e) =>
+                                handleHourChange(
+                                  task.id,
+                                  dayIndex + 1,
+                                  e.target.value
+                                )
+                              }
+                              disabled={isDisabled}
+                            />
+                          </td>
+                        ))}
+                      </tr>
+                    ))
+                  ) : (
+                    <h6>No data</h6>
+                  )}
                 </tbody>
               </table>
             </div>
+            {/* <div className="month-navigation">
+              <button onClick={prevMonthHandler}>&lt;</button>
+              <button onClick={nextMonthHandler}>&gt;</button>
+            </div> */}
           </div>
           <div className="lowerPart">
             <Calendar
               onChange={onChange}
+              // onChange={setDate}
               value={date}
               tileClassName={getClassName}
               onActiveStartDateChange={handleActiveStartDateChange}

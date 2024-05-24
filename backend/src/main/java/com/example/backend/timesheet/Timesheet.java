@@ -7,6 +7,11 @@ import lombok.NoArgsConstructor;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+// import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+
+import com.example.backend.task.Task;
+
 import jakarta.persistence.Column;
 
 @Entity
@@ -27,6 +32,9 @@ public class Timesheet {
     @Column(length = 10)
     private String employeeId;
 
-    @Column(length = 5)
-    private Long taskId;
+    // @Column(length = 5)
+    // private Long taskId;
+
+    @OneToOne
+    private Task task;
 }

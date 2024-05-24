@@ -1,7 +1,10 @@
 package com.example.backend.task;
 
-import com.example.backend.employee.Employee;
+// import java.util.List;
+
+// import com.example.backend.employee.Employee;
 import com.example.backend.manager.Manager;
+import com.example.backend.timesheet.Timesheet;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
@@ -10,6 +13,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+// import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -43,9 +48,19 @@ public class Task {
     @Column(length = 10)
     private String employeeId;
 
+    @Column(length = 10)
+    private String status;
+
+    @Column(length = 40)
+    private String remarks;
+
     @JsonIgnore
     @ManyToOne
     private Manager manager;
+
+    @JsonIgnore
+    @OneToOne(mappedBy = "task")
+    private Timesheet Timesheet;
 
     // @JsonIgnore
     // @ManyToOne

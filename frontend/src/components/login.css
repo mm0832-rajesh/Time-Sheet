@@ -5,7 +5,7 @@
   height: 100vh;
 }
 
-form {
+.loginform {
   background-color: cyan;
   padding: 50px;
   border-radius: 30px;

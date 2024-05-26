@@ -47,8 +47,8 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public boolean updateTask(Task updateTask, String employeeId) {
-        Task task = taskRepo.findByEmployeeId(employeeId);
+    public boolean updateTask(Task updateTask, Long taskId) {
+        Task task = taskRepo.findById(taskId).orElse(null);
         // System.out.println("Task is :- "+task);
         if (task != null) {
             // Task task = optionalTask.get();
@@ -76,6 +76,33 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public List<Task> getAllTasks() {
         return taskRepo.findAll();
+    }
+
+    @Override
+    public boolean updateTaskByEmpId(Task updateTask, String employeeId) {
+        Task task = taskRepo.findByEmployeeId(employeeId);
+        // System.out.println("Task is :- "+task);
+        if (task != null) {
+            // Task task = optionalTask.get();
+            task.setTaskName(updateTask.getTaskName());
+            task.setStartDate(updateTask.getStartDate());
+            task.setEndDate(updateTask.getEndDate());
+            task.setPlanedHour(updateTask.getPlanedHour());
+            task.setBillableHour(updateTask.getBillableHour());
+            task.setEmployeeName(updateTask.getEmployeeName());
+            task.setStatus(updateTask.getStatus());
+            task.setRemarks(updateTask.getRemarks());
+            // task.setEmployeeId(updateTask.getEmployeeId());
+            taskRepo.save(task);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public Task getTaskByTaskId(Long taskId) {
+        return taskRepo.findById(taskId).orElse(null);
     }
 
 }

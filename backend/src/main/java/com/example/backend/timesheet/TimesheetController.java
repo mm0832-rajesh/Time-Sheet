@@ -51,9 +51,9 @@ public class TimesheetController {
         }
     }
 
-    @PutMapping("/{employeeId}")
-    public ResponseEntity<String> updateTask(@RequestBody Timesheet updateTimesheet, @PathVariable String employeeId) {
-        return timesheetServiceImpl.updateTimesheetByEmpId(updateTimesheet, employeeId)
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updateTask(@RequestBody Timesheet updateTimesheet, @PathVariable Long id) {
+        return timesheetServiceImpl.updateTimesheet(updateTimesheet, id)
                 ? new ResponseEntity<>("Timesheet updated", HttpStatus.OK)
                 : new ResponseEntity<>("Timesheet not updated", HttpStatus.NOT_IMPLEMENTED);
     }

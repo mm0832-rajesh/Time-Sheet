@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import "./status.css";
 
-const Status = () => {
+const Status = ({taskData}) => {
+
+  console.log(taskData);
   const [formData, setFormData] = useState({
     overallStatus: "",
     approver: "",
@@ -10,13 +12,28 @@ const Status = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch("/api/decision");
-      const data = await response.json();
-      setFormData(data);
+      try {
+        // Check if there are any tasks
+        if (taskData.length > 0) {
+          // Assuming the overall status is based on the first task's status
+          const overallStatus = taskData[0].status;
+          const approverRemarks = taskData[0].remarks;
+          // Fetch additional data if needed
+          // const response = await fetch("/api/decision");
+          // const data = await response.json();
+          setFormData({
+            overallStatus: overallStatus,
+            approver: approverRemarks,
+            approverRemark: "",
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
     };
 
     fetchData();
-  }, []);
+  }, [taskData]);
 
   return (
     <div className="status">

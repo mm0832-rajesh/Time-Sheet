@@ -39,7 +39,9 @@
 
 .timesheet,
 .holiday,
-.leave {
+.leave,
+.taskAssign,
+.approval {
   cursor: pointer;
   font-weight: 600;
   padding: 5px 10px;
@@ -53,7 +55,9 @@
 
 .navOptions .timesheet:hover,
 .navOptions .holiday:hover,
-.navOptions .leave:hover {
+.navOptions .leave:hover,
+.navOptions .taskAssign:hover,
+.navOptions .approval:hover {
   background-color: whitesmoke;
   color: #57575c;
   transform: scale(1.02);
@@ -267,4 +271,14 @@ td {
   background-color: #1c86ee;
   transform: scale(1.05);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.custom-input {
+  width: 80px;
+  padding: 5px;
+}
+
+.weekend-input {
+  background-color: rgb(246, 105, 105);
+  color: white;
 }

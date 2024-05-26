@@ -4,7 +4,6 @@
   flex-direction: column;
   font-family: 'Roboto', sans-serif;
   height: 100vh;
-  /* background-color: #f5f5f5; */
 }
 
 .header {
@@ -13,7 +12,7 @@
   background-color: #57575c;
   /* padding: 20px; */
   display: flex;
-  justify-content: flex-end; /* Keep the components aligned to the right */
+  justify-content: flex-end; 
   align-items: center;
   gap: 20px; 
 }
@@ -32,7 +31,7 @@
   background-color: #0056b3;
 }
 
-.popup {
+/* .popup {
   width: 90%;
   max-width: 1050px;
   border-radius: 30px;
@@ -40,18 +39,18 @@
   position: relative;
   z-index: 2;
   background-color: #f8f9fa;
-}
+} */
 
-.popup-header {
+/* .popup-header {
   display: flex;
   justify-content: flex-end;
   background-color: #d1d1d1;
   padding: 15px;
   border-top-left-radius: 30px;
   border-top-right-radius: 30px;
-}
+} */
 
-.popup-footer {
+/* .popup-footer {
   position: absolute;
   bottom: 0;
   width: 100%;
@@ -61,9 +60,9 @@
   padding: 15px;
   border-bottom-left-radius: 30px;
   border-bottom-right-radius: 30px;
-}
+} */
 
-.popup-btn {
+/* .popup-btn {
   background-color: #5d5df1;
   color: white;
   padding: 10px 20px;
@@ -75,9 +74,9 @@
 
 .popup-btn:hover {
   background-color: #3a3af7;
-}
+} */
 
-.popup-body {
+/* .popup-body {
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
@@ -134,7 +133,7 @@
   padding: 10px;
   border-radius: 5px;
   margin-top: 10px;
-}
+} */
 
 .timesheetContainer {
   display: flex;

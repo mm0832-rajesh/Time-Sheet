@@ -1,0 +1,53 @@
+.form-container {
+    display: flex;
+    height: 350px;
+    flex-direction: column;
+}
+
+.form-input-container {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .left, .middle, .right {
+    flex: 1;
+    margin: 10px;
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  input, select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  
+  .required {
+    color: red;
+  }
+  
+  .popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border: 2px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+  }
+
+  .form-btns {
+    width: 100%;
+    background-color: rgb(47, 46, 46);
+  }
+  
+  

@@ -7,7 +7,8 @@ public interface TimesheetService {
 
     List<Timesheet> getAllTimesheets();
 
-    boolean updateTimesheetByEmpId(Timesheet updateTimesheet, String employeeId);
+    // boolean updateTimesheetByEmpId(Timesheet updateTimesheet, String employeeId);
+    boolean updateTimesheet(Timesheet updateTimesheet, Long id);
 
     List<Timesheet> getTimeSheetByEmpId(String employeeId);
 }

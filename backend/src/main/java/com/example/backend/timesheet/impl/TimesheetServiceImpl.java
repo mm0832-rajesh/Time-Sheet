@@ -26,17 +26,15 @@ public class TimesheetServiceImpl implements TimesheetService {
 
     @Override
     public boolean addTimesheet(Timesheet timesheet) {
-        if (timesheet != null) {
-            // Fetch the Task using the employeeId from the timesheet object
-            Task task = taskRepo.findByEmployeeId(timesheet.getEmployeeId());
+        if (timesheet != null && timesheet.getTask() != null) {
+            Long taskId = timesheet.getTask().getTaskId();
+            Task task = taskRepo.findById(taskId).orElse(null);
             if (task != null) {
-                // Set the Task in the Timesheet object
                 timesheet.setTask(task);
-                // Save the Timesheet object
                 timesheetRepo.save(timesheet);
                 return true;
             } else {
-                System.err.println("Task for employee ID " + timesheet.getEmployeeId() + " not found.");
+                System.out.println("Task not found for the provided taskId: " + taskId);
             }
         }
         return false;
@@ -48,8 +46,8 @@ public class TimesheetServiceImpl implements TimesheetService {
     }
 
     @Override
-    public boolean updateTimesheetByEmpId(Timesheet updateTimesheet, String employeeId) {
-        Timesheet timesheet = timesheetRepo.findByEmployeeId(employeeId);
+    public boolean updateTimesheet(Timesheet updateTimesheet, Long id) {
+        Timesheet timesheet = timesheetRepo.findById(id).orElse(null);
         // System.out.println("Task is :- "+task);
         if (timesheet != null) {
             timesheet.setInputHour(updateTimesheet.getInputHour());

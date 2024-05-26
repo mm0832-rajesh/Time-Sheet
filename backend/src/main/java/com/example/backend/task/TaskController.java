@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -43,9 +44,25 @@ public class TaskController {
         }
     }
 
-    @PutMapping("/{employeeId}")
+    @GetMapping("/{taskId}")
+    public ResponseEntity<Task> getTaskByTaskId(@PathVariable Long taskId) {
+        if (taskServiceImpl.getTaskByTaskId(taskId) != null) {
+            return new ResponseEntity<>(taskServiceImpl.getTaskByTaskId(taskId), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PutMapping("/{taskId}")
+    public ResponseEntity<String> updateTask(@RequestBody Task updateTask, @PathVariable Long taskId) {
+        return taskServiceImpl.updateTask(updateTask, taskId) ? new ResponseEntity<>("Task updated", HttpStatus.OK)
+                : new ResponseEntity<>("Task not updated", HttpStatus.NOT_IMPLEMENTED);
+    }
+
+    @PutMapping("/employee/{employeeId}")
     public ResponseEntity<String> updateTask(@RequestBody Task updateTask, @PathVariable String employeeId) {
-        return taskServiceImpl.updateTask(updateTask, employeeId) ? new ResponseEntity<>("Task updated", HttpStatus.OK)
+        return taskServiceImpl.updateTaskByEmpId(updateTask, employeeId)
+                ? new ResponseEntity<>("Task updated", HttpStatus.OK)
                 : new ResponseEntity<>("Task not updated", HttpStatus.NOT_IMPLEMENTED);
     }
 

@@ -51,7 +51,7 @@ return (
     </form>
   </div>
   <hr />
-  <div className="col-10">
+  <div className="col-10 leaveHistory">
     <p class="h3 ">Leave History</p>
     <div >
         <select id="leaveType" className="form-select">

@@ -8,11 +8,9 @@
 .loginform {
   background-color: cyan;
   padding: 50px;
-  border-radius: 30px;
 }
 
 .submitBtn {
   background-color: green;
   color: white;
-  border-radius: 10px;
 }

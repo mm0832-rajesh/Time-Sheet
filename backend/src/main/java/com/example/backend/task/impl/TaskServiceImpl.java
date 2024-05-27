@@ -2,6 +2,7 @@ package com.example.backend.task.impl;
 
 import java.util.List;
 // import java.util.Optional;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -103,6 +104,20 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Task getTaskByTaskId(Long taskId) {
         return taskRepo.findById(taskId).orElse(null);
+    }
+
+    @Override
+    public boolean updateTaskStatus(Task updateTask, Long taskId) {
+        Optional<Task> taskOptional = taskRepo.findById(taskId);
+        if (taskOptional.isPresent()) {
+            Task task = taskOptional.get();
+            task.setStatus(updateTask.getStatus());
+            task.setRemarks(updateTask.getRemarks());
+            taskRepo.save(task);
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }

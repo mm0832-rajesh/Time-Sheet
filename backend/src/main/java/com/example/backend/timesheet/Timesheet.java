@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 // import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 
@@ -35,6 +36,6 @@ public class Timesheet {
     // @Column(length = 5)
     // private Long taskId;
 
-    @OneToOne
+    @ManyToOne
     private Task task;
 }

@@ -1,24 +1,60 @@
 .table-wrapper {
-  max-height: 300px; /* Adjust this value as needed */
+  max-height: 250px; /* Adjust this value as needed */
   overflow-y: auto;
   margin: 20px;
 }
 
-/* .container {
-  display: flex;
-  flex-direction: row;
+.form {
+  background-color: transparent;
+  box-shadow: none;
 }
 
-.leave {
-  display: flex;
-  flex-direction: column;
-} */
-
-.leaveform{
-  margin-left: 280px;
+.card{
+  border: none;
 }
 
-.leaveHistory{
-  margin-left: 380px;
+.sick-card {
+  background-image: url('https://img.freepik.com/free-vector/people-walking-sitting-hospital-building-city-clinic-glass-exterior-flat-vector-illustration-medical-help-emergency-architecture-healthcare-concept_74855-10130.jpg?w=996&t=st=1716784300~exp=1716784900~hmac=8424eab21e7ebabd73d5b0efd54edc49dcaac54acede83f8da0c157b1a8ff93f');
+  background-size: cover;
+  background-position: center;
+  color: white; /* Adjust text color for better readability */
+  margin-left: 100px;
+  box-shadow: 2px 2px 2px 2px gray;
 }
 
+.casual-card {
+  background-image: url('https://img.freepik.com/free-vector/choose-destination-concept-illustration_114360-24622.jpg?t=st=1716784418~exp=1716788018~hmac=e1af9b66fca8637217495dc0c30cc46d2f1e6cb4f5df3ee9f546e1114004c200&w=900');
+  background-size: cover;
+  background-position: center;
+  color: white; /* Adjust text color for better readability */
+  margin-left: 100px;
+  box-shadow: 2px 2px 2px 2px gray;
+}
+
+.card-body {
+  position: relative; /* Ensure content is positioned relative to the card */
+  z-index: 2; /* Ensure content is above the background */
+}
+
+.casual-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(50, 48, 48, 0.5); /* Optional: Add overlay to improve text readability */
+  z-index: 1;
+  border-radius: 0; /* Ensure overlay matches the card's rounded corners */
+}
+.sick-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(50, 48, 48, 0.5);  /* Optional: Add overlay to improve text readability */
+  z-index: 1;
+  border-radius: 0; /* Ensure overlay matches the card's rounded corners */
+}

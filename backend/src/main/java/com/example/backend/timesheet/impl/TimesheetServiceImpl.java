@@ -24,20 +24,42 @@ public class TimesheetServiceImpl implements TimesheetService {
     @Autowired
     private TaskServiceImpl taskServiceImpl;
 
-    @Override
-    public boolean addTimesheet(Timesheet timesheet) {
-        if (timesheet != null && timesheet.getTask() != null) {
-            Long taskId = timesheet.getTask().getTaskId();
-            Task task = taskRepo.findById(taskId).orElse(null);
-            if (task != null) {
-                timesheet.setTask(task);
-                timesheetRepo.save(timesheet);
-                return true;
+    // @Override
+    // public boolean addTimesheet(Timesheet timesheet) {
+    //     if (timesheet != null && timesheet.getTask() != null) {
+    //         Long taskId = timesheet.getTask().getTaskId();
+    //         Task task = taskRepo.findById(taskId).orElse(null);
+    //         if (task != null) {
+    //             timesheet.setTask(task);
+    //             timesheetRepo.save(timesheet);
+    //             return true;
+    //         } else {
+    //             System.out.println("Task not found for the provided taskId: " + taskId);
+    //         }
+    //     }
+    //     return false;
+    // }
+
+    public boolean addTimesheets(List<Timesheet> timesheets) {
+        boolean allSaved = true;
+    
+        for (Timesheet timesheet : timesheets) {
+            if (timesheet != null && timesheet.getTask() != null) {
+                Long taskId = timesheet.getTask().getTaskId();
+                Task task = taskRepo.findById(taskId).orElse(null);
+                if (task != null) {
+                    timesheet.setTask(task);
+                    timesheetRepo.save(timesheet);
+                } else {
+                    System.out.println("Task not found for the provided taskId: " + taskId);
+                    allSaved = false;
+                }
             } else {
-                System.out.println("Task not found for the provided taskId: " + taskId);
+                allSaved = false;
             }
         }
-        return false;
+    
+        return allSaved;
     }
 
     @Override

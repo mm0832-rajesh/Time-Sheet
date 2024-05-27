@@ -26,7 +26,18 @@ const EmployeeScreen = () => {
 
   const [timesheetData, setTimesheetData] = useState([]);
 
-  const [timesheetId, setTimesheetId] = useState(0);
+  const [timesheetResult, setTimesheetResult] = useState({});
+
+  const [statusObj, setStatusObj] = useState({});
+
+  const [timesheetObject, setTimesheetObject] = useState({
+    inputHour: 0,
+    date: "",
+    employeeId: "",
+    task: {
+      taskId: 0,
+    },
+  });
 
   const handleOptionClick = (option, handler) => {
     setActive(option);
@@ -125,54 +136,37 @@ const EmployeeScreen = () => {
   }, []);
 
   const saveTimesheetHandler = async () => {
-    const date = new Date().toISOString().split("T")[0];
-    const employeeId = employee.empId;
-
+    const res = [];
+    res.push(timesheetObject);
+    console.log(timesheetResult);
     try {
-      for (const taskData of empTaskData) {
-        const { taskId } = taskData;
-        let totalInputHours = 0;
-
-        for (const day in hours[taskId]) {
-          totalInputHours += Number(hours[taskId][day] || 0);
-        }
-
-        const timesheetData = {
-          inputHour: totalInputHours,
-          date: date,
-          employeeId: employeeId,
-          task: {
-            taskId: taskId,
+      if (timesheetResult && timesheetResult.id) {
+        // If timesheetResult exists and has an id, update the existing timesheet entry
+        await fetch(`http://localhost:8000/timesheet/${timesheetResult.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
           },
-        };
-
-        if (timesheetId) {
-          await fetch(`http://localhost:8000/timesheet/${timesheetId}`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(timesheetData),
-          });
-          console.log(`Timesheet with ID ${timesheetId} updated successfully.`);
-        } else {
-          await fetch("http://localhost:8000/timesheet", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(timesheetData),
-          });
-        }
+          body: JSON.stringify(timesheetObject),
+        });
+      } else {
+        // Otherwise, save a new timesheet entry
+        await fetch("http://localhost:8000/timesheet", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(res),
+        });
       }
     } catch (error) {
-      console.log("Error is ", error);
+      console.log("Error is : ", error);
     }
   };
 
   const submitTimesheetHandler = async () => {
     const errorMessages = [];
-  
+
     const allTasksFilled = empTaskData.every((task) => {
       for (let day = 1; day <= visibleDays; day++) {
         const value = hours[task.taskId]?.[day];
@@ -181,10 +175,9 @@ const EmployeeScreen = () => {
           new Date().getMonth(),
           day
         );
-  
         const dayOfWeek = date.getDay();
         const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-  
+
         const holiday = holidayData.some((holiday) => {
           const holidayDate = new Date(holiday.date);
           return (
@@ -193,7 +186,7 @@ const EmployeeScreen = () => {
             holidayDate.getFullYear() === date.getFullYear()
           );
         });
-  
+
         if (isWeekend || holiday) {
           if (value !== undefined && value !== "") {
             errorMessages.push(
@@ -215,26 +208,23 @@ const EmployeeScreen = () => {
       }
       return true;
     });
-  
+
     if (!allTasksFilled) {
       alert(`Errors found:\n${errorMessages.join("\n")}`);
       return;
     }
-  
+
     try {
-      // Update status to "submitted" for all tasks sequentially
       for (const task of empTaskData) {
-        // Fetch the current task data
-        const taskResponse = await fetch(`http://localhost:8000/task/${task.taskId}`);
+        const taskResponse = await fetch(
+          `http://localhost:8000/task/${task.taskId}`
+        );
         if (!taskResponse.ok) {
           throw new Error(`Failed to fetch task with ID ${task.taskId}`);
         }
         const taskData = await taskResponse.json();
-  
-        // Update the status field
         taskData.status = "submitted";
-  
-        // Send the updated task data
+
         const updateResponse = await fetch(
           `http://localhost:8000/task/${task.taskId}`,
           {
@@ -245,22 +235,19 @@ const EmployeeScreen = () => {
             body: JSON.stringify(taskData),
           }
         );
-  
+
         if (!updateResponse.ok) {
           throw new Error(`Failed to update task with ID ${task.taskId}`);
         }
       }
-  
-      // If all API calls are successful, display success message
+
       alert("All timesheets submitted successfully.");
-      // Disable input fields
       setIsDisabled(true);
     } catch (error) {
       console.error("Error updating task status:", error);
       alert("Error submitting timesheets. Please try again later.");
     }
   };
-  
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -287,7 +274,15 @@ const EmployeeScreen = () => {
     matchEmpId();
   }, [taskData, employee]);
 
-  const handleHourChange = (taskId, day, value) => {
+  const handleHourChange = (taskId, day, e) => {
+    const { value } = e.target;
+    console.log(taskId, day, value);
+
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = currentDate.toLocaleString("default", { month: "short" });
+    const dateString = `${year}-${month}-${day}`;
+
     setHours((prevHours) => ({
       ...prevHours,
       [taskId]: {
@@ -296,19 +291,17 @@ const EmployeeScreen = () => {
       },
     }));
 
-    // const result = timesheetData.find((item) => {
-    //   return item.task.taskId === taskId;
-    // });
-
-    // setTimesheetId(result.id);
-    if (!timesheetId) {
-      const result = timesheetData.find((item) => {
-        return item.task.taskId === taskId;
-      });
-      if (result) {
-        setTimesheetId(result.id);
-      }
-    }
+    setTimesheetObject((prev) => {
+      return {
+        ...prev,
+        inputHour: value,
+        date: dateString,
+        employeeId: employee.empId,
+        task: {
+          taskId: taskId,
+        },
+      };
+    });
   };
 
   useEffect(() => {
@@ -326,8 +319,47 @@ const EmployeeScreen = () => {
     return dayOfWeek === 0 || dayOfWeek === 6;
   };
 
-  const getSubmittedTasks = () => {
-    return taskData.filter((task) => task.status === "submitted");
+  // const getSubmittedTasks = () => {
+  //   // return taskData.filter((task) => task.status === "submitted" || task.status === "approved");
+  //   var tempData = taskData.filter((task) => {
+  //     return task.employeeId === employee.empId;
+  //   });
+
+  //   return tempData
+  // };
+
+  const checkTimesheetHandler = (id) => {
+    let tempData = taskData.filter((task) => {
+      return task.employeeId === employee.empId;
+    });
+
+    let valObj = tempData.find((item) => item.taskId === id);
+    setStatusObj(valObj);
+
+    // console.log(id);
+  };
+
+  const handleInputClick = (taskId, day, employeeId) => {
+    console.log(
+      `Task ID: ${taskId}, Day: ${day}, Hours: ${
+        hours[taskId]?.[day] || ""
+      }, EmployeeId : ${employeeId}`
+    );
+    console.log(timesheetData);
+    const res = timesheetData.find((item) => {
+      console.log(
+        typeof item.date.split("-")[2],
+        typeof day,
+        item.date.split("-")[2]
+      );
+      return (
+        item.employeeId === employeeId &&
+        item.task.taskId === taskId &&
+        item.date.split("-")[2] === String(day)
+      );
+    });
+    console.log(res);
+    setTimesheetResult(res);
   };
 
   return (
@@ -360,29 +392,7 @@ const EmployeeScreen = () => {
       </div>
 
       {showHoliday && <HolidayScreen />}
-      {showLeave && (
-        <div className="empTimesheetBody">
-          <div className="leaveBody">
-            <div className="sickLeave">
-              <h2 className="leaveTitle">Sick</h2>
-              <div className="leaveCount">
-                <h4>Total Sick: 7</h4>
-                <h4>Approved: {employee?.empLeaves || 0}</h4>
-                <h4>Remaining: {7 - (employee?.empLeaves || 0)}</h4>
-              </div>
-            </div>
-            <div className="casualLeave">
-              <h2 className="leaveTitle">Casual</h2>
-              <div className="leaveCount">
-                <h4>Total Casual: 18</h4>
-                <h4>Approved: 3</h4>
-                <h4>Remaining: 15</h4>
-              </div>
-            </div>
-          </div>
-          <LeaveScreen />
-        </div>
-      )}
+      {showLeave && <LeaveScreen />}
       {showTimesheet && (
         <div className="timesheetContainer">
           <div className="upperPart">
@@ -404,15 +414,17 @@ const EmployeeScreen = () => {
                     <th>Task</th>
                     <th>TH</th>
                     {Array.from({ length: visibleDays }, (_, index) => (
-                      <th key={index}>{index + 1}</th>
+                      <th key={index + 1}>{index + 1}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {empTaskData.length ? (
                     empTaskData.map((task, taskIndex) => (
-                      <tr key={taskIndex}>
-                        <td>{task.taskName}</td>
+                      <tr key={task.taskId}>
+                        <td onClick={() => checkTimesheetHandler(task.taskId)}>
+                          {task.taskName}
+                        </td>
                         <td>
                           {Object.values(hours[task.taskId] || {}).reduce(
                             (acc, hour) => acc + Number(hour || 0),
@@ -420,22 +432,24 @@ const EmployeeScreen = () => {
                           )}
                         </td>
                         {Array.from({ length: visibleDays }, (_, dayIndex) => (
-                          <td key={dayIndex}>
+                          <td
+                            key={dayIndex + 1}
+                            onClick={() => console.log(dayIndex + 1)}
+                          >
                             <input
                               className={`custom-input ${
                                 isWeekend(dayIndex + 1) ? "weekend-input" : ""
                               }`}
                               type="number"
-                              value={
-                                (hours[task.taskId] &&
-                                  hours[task.taskId][dayIndex + 1]) ||
-                                ""
-                              }
+                              value={hours[task.taskId]?.[dayIndex + 1] || ""}
                               onChange={(e) =>
-                                handleHourChange(
+                                handleHourChange(task.taskId, dayIndex + 1, e)
+                              }
+                              onClick={() =>
+                                handleInputClick(
                                   task.taskId,
                                   dayIndex + 1,
-                                  e.target.value
+                                  task.employeeId
                                 )
                               }
                               disabled={isDisabled}
@@ -458,7 +472,7 @@ const EmployeeScreen = () => {
               tileClassName={getClassName}
               onActiveStartDateChange={handleActiveStartDateChange}
             />
-            <Status taskData={getSubmittedTasks()}/>
+            <Status statusObj={statusObj} />
           </div>
         </div>
       )}

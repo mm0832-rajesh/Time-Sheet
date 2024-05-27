@@ -66,4 +66,10 @@ public class TaskController {
                 : new ResponseEntity<>("Task not updated", HttpStatus.NOT_IMPLEMENTED);
     }
 
+    @PatchMapping("/taskUpdate/{taskId}")
+    public ResponseEntity<String> updateTaskStatus(@RequestBody Task updateTask, @PathVariable Long taskId) {
+        return taskServiceImpl.updateTaskStatus(updateTask, taskId) ? new ResponseEntity<>("Task updated", HttpStatus.OK)
+                : new ResponseEntity<>("Task updated", HttpStatus.NOT_IMPLEMENTED);
+    }
+
 }

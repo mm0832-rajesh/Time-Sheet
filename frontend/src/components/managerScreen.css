@@ -8,13 +8,12 @@
 
 .header {
   width: 100%;
-  /* max-width: 1259px; */
   background-color: #57575c;
-  /* padding: 20px; */
   display: flex;
-  justify-content: flex-end; 
   align-items: center;
-  gap: 20px; 
+  justify-content: space-between;
+  color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); 
 }
 
 .task-btn {

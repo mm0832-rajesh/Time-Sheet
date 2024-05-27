@@ -1,5 +1,7 @@
 package com.example.backend.task;
 
+import java.util.List;
+
 // import java.util.List;
 
 // import com.example.backend.employee.Employee;
@@ -13,6 +15,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 // import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
@@ -59,8 +62,8 @@ public class Task {
     private Manager manager;
 
     @JsonIgnore
-    @OneToOne(mappedBy = "task")
-    private Timesheet Timesheet;
+    @OneToMany(mappedBy = "task")
+    private List<Timesheet> Timesheet;
 
     // @JsonIgnore
     // @ManyToOne

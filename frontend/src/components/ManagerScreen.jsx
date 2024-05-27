@@ -146,7 +146,7 @@ const ManagerScreen = () => {
   };
 
   return (
-    <div className="container">
+    <div className="mgrcontainer">
       <div className="top">
         <div className="empHeader">
           <div className="avatar">🧑‍💼</div>
@@ -188,149 +188,13 @@ const ManagerScreen = () => {
         </div>
       </div>
 
-      {/* {showPopup && (
-        <div className="popup">
-          <div className="popup-content">
-            <div className="popup-header">
-              <button className="close-btn" onClick={togglePopup}>
-                ❌
-              </button>
-            </div>
-            <div className="popup-body">
-              <div className="emp-task">
-                <label htmlFor="employeeId">
-                  Employee Id<span className="required">*</span>
-                </label>
-                <select
-                  name="employeeId"
-                  id="employeeId"
-                  // value={data.employeeId}
-                  // onChange={handleChange}
-                >
-                  <option value="">Select Employee ID</option>
-                  {manager.employees.map((employee) => (
-                    <option key={employee.empId} value={employee.empId}>
-                      {employee.empId}
-                    </option>
-                  ))}
-                </select>
-                <br />
-                <label htmlFor="employeeName">
-                  Employee Name<span className="required">*</span>
-                </label>
-                <select
-                  name="employeeName"
-                  id="employeeName"
-                  // value={data.employeeName}
-                  // onChange={handleChange}
-                >
-                  <option value="">Select Employee Name</option>
-                  {manager.employees.map((employee) => (
-                    <option key={employee.empId} value={employee.empName}>
-                      {employee.empName}
-                    </option>
-                  ))}
-                </select>
-                <br />
-                <label htmlFor="taskName">
-                  Task Name<span className="required">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="taskName"
-                  id="taskName"
-                  placeholder="Task Name"
-                  required
-                  // value={data.taskName}
-                  // onChange={handleChange}
-                />
-                <br />
-              </div>
-
-              <div className="task-date">
-                <label htmlFor="startDate">
-                  Start Date<span className="required">* </span>
-                </label>
-                <input
-                  type="date"
-                  name="startDate"
-                  id="startDate"
-                  // value={data.startDate}
-                  // onChange={handleChange}
-                />
-                <br />
-                <br />
-                <label htmlFor="endDate">
-                  End Date<span className="required">* </span>
-                </label>
-                <input
-                  type="date"
-                  name="endDate"
-                  id="endDate"
-                  // value={data.endDate}
-                  // onChange={handleChange}
-                />
-              </div>
-
-              <div className="task-hour">
-                <label htmlFor="planedHour">Planed Hours:</label>
-                <input
-                  type="number"
-                  name="planedHour"
-                  id="planedHour"
-                  // value={data.planedHour}
-                  // onChange={handleChange}
-                />
-                <br />
-                <br />
-                <label htmlFor="billableHour">Billable Hours:</label>
-                <input
-                  type="number"
-                  name="billableHour"
-                  id="billableHour"
-                  // value={data.billableHour}
-                  // onChange={handleChange}
-                />
-              </div>
-            </div>
-
-            <div className="popup-footer">
-              <button className="popup-btn" onClick={saveHandler}>
-                Save
-              </button>
-            </div>
-            {errorMessage && <p className="error-message">{errorMessage}</p>}
-          </div>
-        </div>
-      )} */}
-
       {showAssignTask && <AssignTask manager={manager} />}
 
       {showApproval && <Approval />}
 
       {showHoliday && <HolidayScreen />}
       {showLeave && (
-        <div className="empTimesheetBody">
-          <div className="leaveBody">
-            <div className="sickLeave">
-              <h2 className="leaveTitle">Sick</h2>
-              <div className="leaveCount">
-                <h4>Total Sick: 7</h4>
-                <h4>Approved: 2</h4>
-                <h4>Remaining: 5</h4>
-              </div>
-            </div>
-            <div className="casualLeave">
-              <h2 className="leaveTitle">Casual</h2>
-              <div className="leaveCount">
-                <h4>Total Casual: 18</h4>
-                <h4>Approved: 3</h4>
-                <h4>Remaining: 15</h4>
-              </div>
-            </div>
-          </div>
-          <LeaveScreen />
-        </div>
+        <LeaveScreen/>
       )}
       {showTimesheet && (
         <div className="timesheetContainer">

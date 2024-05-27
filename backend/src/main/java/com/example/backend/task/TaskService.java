@@ -14,4 +14,6 @@ public interface TaskService {
     List<Task> getAllTasks();
 
     Task getTaskByTaskId(Long taskId);
+
+    boolean updateTaskStatus(Task updateTask, Long taskId);
 }

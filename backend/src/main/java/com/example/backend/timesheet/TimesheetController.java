@@ -25,11 +25,11 @@ public class TimesheetController {
     private TimesheetServiceImpl timesheetServiceImpl;
 
     @PostMapping
-    public ResponseEntity<String> addTimesheet(@RequestBody Timesheet timesheet) {
-        if (timesheetServiceImpl.addTimesheet(timesheet)) {
-            return new ResponseEntity<>("Timesheet added", HttpStatus.OK);
+    public ResponseEntity<String> addTimesheets(@RequestBody List<Timesheet> timesheets) {
+        if (timesheetServiceImpl.addTimesheets(timesheets)) {
+            return new ResponseEntity<>("Timesheets added", HttpStatus.OK);
         } else {
-            return new ResponseEntity<>("Timesheet not added", HttpStatus.NOT_IMPLEMENTED);
+            return new ResponseEntity<>("Timesheets not added", HttpStatus.NOT_IMPLEMENTED);
         }
     }
 

@@ -1,16 +1,154 @@
-.form-container {
+.container {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items:center;
+  flex-direction: row; 
   height: 100vh;
+  background-image:url('.//image.jpg');
+  min-width:100%;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
-.loginform {
-  background-color: cyan;
-  padding: 50px;
+.logo {
+  position: absolute;
+  top: 20px;
+  left: 60px;
+  z-index: 100;
 }
 
-.submitBtn {
-  background-color: green;
-  color: white;
+.logo img {
+  height: 20px;
+}
+
+.login-form {
+  background-color: #ecede8;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0px 8px 18px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  height: 400px;
+  width: 350px;
+  margin-right: 50px;
+  display: flex;
+  flex-direction: column; 
+  justify-content: center; 
+}
+
+.greeting {
+  font-size: 25px;
+  font-weight: 900;
+  margin-bottom: 30px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.form-group label {
+  
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  text-align: left;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.forgot-password {
+  margin-bottom: 15px;
+  text-align: right;
+}
+
+.forgot-password a {
+  color: #673ab7;
+  text-decoration: none;
+}
+
+.loginSCreenBtn {
+  background-color: #1e94f4;
+  color: #fff;
+  font-weight: 600;
+  font-size:16px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  transition: 0.1s;
+  border-radius: 40px;
+}
+
+button:hover{
+  background-color: #006ac1;
+  
+}
+
+.form-group input::placeholder {
+  font-size: 14px;
+  color: #bdbcbc;
+}
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  background-color: #f5f2f2f7; 
+}
+
+.input-container{
+  position: relative; 
+  display: flex; 
+  align-items: center;
+}
+
+.loginicon {
+  position: absolute; 
+  right: 10px;
+  top: 60%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.child-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 280px;
+  margin-top: 50px;
+}
+
+.child-para{
+  margin-top: 100px;
+}
+
+.main{
+  font-size: 55px;
+  font-weight: 700;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #0b375b;
+  text-shadow: 2px 2px 4px rgb(233, 227, 214);
+}
+
+.secondary{
+  font-size: 25px;
+  font-weight: 900;
+  font-family:cursive;
+  color: #f3f4e4;
+  
+}
+
+.mavenSpan{
+  color: #ffffff;
+  font-size: 35px;
+  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }

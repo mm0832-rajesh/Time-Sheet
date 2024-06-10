@@ -1,7 +1,7 @@
 .table-wrapper {
-  max-height: 250px; /* Adjust this value as needed */
+  max-height: 170px; 
   overflow-y: auto;
-  margin: 20px;
+  
 }
 
 .form {
@@ -15,25 +15,27 @@
 
 .sick-card {
   background-image: url('https://img.freepik.com/free-vector/people-walking-sitting-hospital-building-city-clinic-glass-exterior-flat-vector-illustration-medical-help-emergency-architecture-healthcare-concept_74855-10130.jpg?w=996&t=st=1716784300~exp=1716784900~hmac=8424eab21e7ebabd73d5b0efd54edc49dcaac54acede83f8da0c157b1a8ff93f');
-  background-size: cover;
+  background-size: contain;
   background-position: center;
-  color: white; /* Adjust text color for better readability */
-  margin-left: 100px;
-  box-shadow: 2px 2px 2px 2px gray;
+  color: white; 
+  margin-top:10px;
+  box-shadow: 3px 3px 3px 1px rgb(183, 181, 181);
+  height: 230px;
 }
 
 .casual-card {
   background-image: url('https://img.freepik.com/free-vector/choose-destination-concept-illustration_114360-24622.jpg?t=st=1716784418~exp=1716788018~hmac=e1af9b66fca8637217495dc0c30cc46d2f1e6cb4f5df3ee9f546e1114004c200&w=900');
-  background-size: cover;
+  background-size:contain;
   background-position: center;
-  color: white; /* Adjust text color for better readability */
-  margin-left: 100px;
-  box-shadow: 2px 2px 2px 2px gray;
+  color: white; 
+  margin-top: 20px;
+  box-shadow: 3px 3px 3px 1px rgb(183, 181, 181);
+  height:230px;
 }
 
 .card-body {
-  position: relative; /* Ensure content is positioned relative to the card */
-  z-index: 2; /* Ensure content is above the background */
+  position: relative; 
+  z-index: 2; 
 }
 
 .casual-card::before {
@@ -43,9 +45,9 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(50, 48, 48, 0.5); /* Optional: Add overlay to improve text readability */
+  background: rgba(0, 0, 0, 0.6); 
   z-index: 1;
-  border-radius: 0; /* Ensure overlay matches the card's rounded corners */
+  border-radius: 0; 
 }
 .sick-card::before {
   content: '';
@@ -54,7 +56,76 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(50, 48, 48, 0.5);  /* Optional: Add overlay to improve text readability */
+  background: rgba(0, 0, 0, 0.6);  
   z-index: 1;
-  border-radius: 0; /* Ensure overlay matches the card's rounded corners */
+  border-radius: 0; 
+}
+.leave-container {
+  display: flex;
+  flex-direction: row;
+  margin-left: 1%;
+}
+
+.left-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.right-column {
+  display: flex;
+  flex-direction: column;
+}
+
+th{
+  background-color: aqua;
+}
+.card-title-right{
+  font-weight: 700;
+  font-family:Arial, Helvetica, sans-serif;
+  text-align: left;
+  
+}
+
+.card-title{
+  font-weight: 700;
+  font-size: 30px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin-top: 20px;
+}
+
+.row{
+  min-width: 100%;
+  background-image: none;
+}
+
+.leave-container{
+  background-image: none;
+}
+
+.dropdown{
+  margin-left: 20%;
+}
+
+.card-text{
+  font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  font-weight: 800;
+  font-size: 16px;
+}
+
+table tr-th{
+  background-color: aqua;
+}
+
+.table-header th{
+  background-color: #51d9f1; 
+}
+
+/* .small-button {
+  padding: 4px 7px;
+  font-size: 10px;
+  line-height: 1.5;
+} */
+
+.right-cards{
+  box-shadow:3px 3px 3px 1.5px rgb(207, 205, 205);
 }

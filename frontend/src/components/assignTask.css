@@ -1,53 +1,113 @@
+/* assignTask.css */
+.taskAssignment-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.assignTaskBtn {
+  margin: 3px;
+  margin-bottom: -18px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.content-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.content-container.show-popup {
+  flex-direction: column;
+}
+
+.taskTable-container {
+  flex: 1;
+  margin-top: 20px;
+}
+
+.popup {
+  flex: 0 0 40%;
+  margin-top: 20px;
+  background-color: white;
+  padding: 20px;
+  border: 2px solid #ccc;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
 .form-container {
-    display: flex;
-    height: 350px;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .form-input-container {
-    display: flex;
-    justify-content: space-between;
-  }
-  
-  .left, .middle, .right {
-    flex: 1;
-    margin: 10px;
-  }
-  
-  label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
-  
-  input, select {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-  }
-  
-  .required {
-    color: red;
-  }
-  
-  .popup {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: white;
-    padding: 20px;
-    border: 2px solid #ccc;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    z-index: 1000;
-  }
+  display: flex;
+  justify-content: space-between;
+}
 
-  .form-btns {
-    width: 100%;
-    background-color: rgb(47, 46, 46);
-  }
-  
-  
+.left,
+.middle,
+.right {
+  flex: 1;
+  margin: 10px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.required {
+  color: red;
+}
+
+.form-btns {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+ background-color: rgb(135, 133, 133);
+}
+
+.cancelAssignTaskBtn,
+.saveAssignTaskBtn {
+  margin: 2px;
+  background-color: #1e90ff;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  border: none;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.cancelAssignTaskBtn:hover,
+.saveAssignTaskBtn:hover,
+.tasksAssignBtn:hover {
+  background-color: #1c86ee;
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.tasksAssignBtn {
+  margin: 2px;
+  background-color: #1e90ff;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  border: none;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}

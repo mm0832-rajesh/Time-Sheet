@@ -45,6 +45,9 @@ const HolidayScreen = () => {
     <div className="holidayContainer">
       <div className="holidayHeader">
         <select
+          style={{
+            height: "40px",
+          }}
           name="location"
           id="location"
           onChange={handleChange}

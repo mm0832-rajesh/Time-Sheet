@@ -1,10 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import "./employeeScreen.css";
 import { useLocation } from "react-router-dom";
 import HolidayScreen from "./HolidayScreen";
+import LeaveScreen from "./LeaveScreen";
 import Calendar from "react-calendar";
 import Status from "./Status";
-import LeaveScreen from "./LeaveScreen";
+import {
+  CommentOutlined,
+  SaveOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
+import { Tooltip, Modal, Input } from "antd";
 
 const EmployeeScreen = () => {
   const [showHoliday, setShowHoliday] = useState(false);
@@ -19,8 +25,10 @@ const EmployeeScreen = () => {
   const [empTaskData, setEmpTaskData] = useState([]);
 
   const [hours, setHours] = useState({});
+  const [comments, setComments] = useState({});
 
   const [isDisabled, setIsDisabled] = useState(false);
+  const [activeComment, setActiveComment] = useState(null);
 
   const [active, setActive] = useState("timesheet");
 
@@ -30,8 +38,11 @@ const EmployeeScreen = () => {
 
   const [statusObj, setStatusObj] = useState({});
 
+  const [textAreaValue, setTextAreaValue] = useState("");
+
   const [timesheetObject, setTimesheetObject] = useState({
     inputHour: 0,
+    comments: "",
     date: "",
     employeeId: "",
     task: {
@@ -135,13 +146,11 @@ const EmployeeScreen = () => {
     handleActiveStartDateChange({ activeStartDate, view: "month" });
   }, []);
 
-  const saveTimesheetHandler = async () => {
+  const saveTimesheetHandler = useCallback(async () => {
     const res = [];
     res.push(timesheetObject);
-    console.log(timesheetResult);
     try {
       if (timesheetResult && timesheetResult.id) {
-        // If timesheetResult exists and has an id, update the existing timesheet entry
         await fetch(`http://localhost:8000/timesheet/${timesheetResult.id}`, {
           method: "PUT",
           headers: {
@@ -150,7 +159,6 @@ const EmployeeScreen = () => {
           body: JSON.stringify(timesheetObject),
         });
       } else {
-        // Otherwise, save a new timesheet entry
         await fetch("http://localhost:8000/timesheet", {
           method: "POST",
           headers: {
@@ -162,7 +170,7 @@ const EmployeeScreen = () => {
     } catch (error) {
       console.log("Error is : ", error);
     }
-  };
+  }, [timesheetObject, timesheetResult]);
 
   const submitTimesheetHandler = async () => {
     const errorMessages = [];
@@ -192,7 +200,6 @@ const EmployeeScreen = () => {
             errorMessages.push(
               `Day ${day}: Should be empty for weekends/holidays.`
             );
-            return false;
           }
         } else {
           if (
@@ -276,7 +283,6 @@ const EmployeeScreen = () => {
 
   const handleHourChange = (taskId, day, e) => {
     const { value } = e.target;
-    console.log(taskId, day, value);
 
     const currentDate = new Date();
     const year = currentDate.getFullYear();
@@ -295,6 +301,7 @@ const EmployeeScreen = () => {
       return {
         ...prev,
         inputHour: value,
+        comments: comments[taskId]?.[day] || "",
         date: dateString,
         employeeId: employee.empId,
         task: {
@@ -319,15 +326,6 @@ const EmployeeScreen = () => {
     return dayOfWeek === 0 || dayOfWeek === 6;
   };
 
-  // const getSubmittedTasks = () => {
-  //   // return taskData.filter((task) => task.status === "submitted" || task.status === "approved");
-  //   var tempData = taskData.filter((task) => {
-  //     return task.employeeId === employee.empId;
-  //   });
-
-  //   return tempData
-  // };
-
   const checkTimesheetHandler = (id) => {
     let tempData = taskData.filter((task) => {
       return task.employeeId === employee.empId;
@@ -335,31 +333,59 @@ const EmployeeScreen = () => {
 
     let valObj = tempData.find((item) => item.taskId === id);
     setStatusObj(valObj);
-
-    // console.log(id);
   };
 
   const handleInputClick = (taskId, day, employeeId) => {
-    console.log(
-      `Task ID: ${taskId}, Day: ${day}, Hours: ${
-        hours[taskId]?.[day] || ""
-      }, EmployeeId : ${employeeId}`
-    );
-    console.log(timesheetData);
     const res = timesheetData.find((item) => {
-      console.log(
-        typeof item.date.split("-")[2],
-        typeof day,
-        item.date.split("-")[2]
-      );
       return (
         item.employeeId === employeeId &&
         item.task.taskId === taskId &&
         item.date.split("-")[2] === String(day)
       );
     });
-    console.log(res);
     setTimesheetResult(res);
+  };
+
+  useEffect(() => {
+    const handleKeyPress = (event) => {
+      if (event.key === "Enter") {
+        saveTimesheetHandler();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [saveTimesheetHandler]);
+
+  const textAreaClickHandler = (taskId, day) => {
+    setActiveComment({ taskId, day });
+  };
+
+  const handleCommentChange = (taskId, day, e) => {
+    const { value } = e.target;
+
+    setComments((prevComments) => ({
+      ...prevComments,
+      [taskId]: {
+        ...prevComments[taskId],
+        [day]: value,
+      },
+    }));
+
+    setTimesheetObject((prev) => ({
+      ...prev,
+      comments: value,
+      date: `${new Date().getFullYear()}-${new Date().toLocaleString(
+        "default",
+        {
+          month: "short",
+        }
+      )}-${day}`,
+      employeeId: employee.empId,
+      task: { taskId },
+    }));
   };
 
   return (
@@ -367,7 +393,9 @@ const EmployeeScreen = () => {
       <div className="top">
         <div className="empHeader">
           <div className="avatar">🧑‍💼</div>
-          <div className="empName">Hi {employee?.empName || "Employee"}</div>
+          <div className="empName">
+            Welcome {employee?.empName || "Employee"}
+          </div>
         </div>
         <div className="navOptions">
           <div
@@ -398,13 +426,13 @@ const EmployeeScreen = () => {
           <div className="upperPart">
             <div className="timesheetBtns">
               <button className="saveTimesheet" onClick={saveTimesheetHandler}>
-                Save
+                <SaveOutlined /> Save
               </button>
               <button
                 className="submitTimesheet"
                 onClick={submitTimesheetHandler}
               >
-                Submit
+                <UploadOutlined /> Submit
               </button>
             </div>
             <div className="table-container">
@@ -422,9 +450,36 @@ const EmployeeScreen = () => {
                   {empTaskData.length ? (
                     empTaskData.map((task, taskIndex) => (
                       <tr key={task.taskId}>
-                        <td onClick={() => checkTimesheetHandler(task.taskId)}>
-                          {task.taskName}
-                        </td>
+                        <Tooltip
+                          title={
+                            <>
+                              <div>
+                                <strong>Task Name:</strong> {task.taskName}
+                              </div>
+                              <div>
+                                <strong>Start Date:</strong> {task.startDate}
+                              </div>
+                              <div>
+                                <strong>End Date:</strong> {task.endDate}
+                              </div>
+                              <div>
+                                <strong>Status:</strong> {task.status}
+                              </div>
+                              <div>
+                                <strong>Billable Hours:</strong>{" "}
+                                {task.billableHour}
+                              </div>
+                            </>
+                          }
+                        >
+                          <td
+                            className="taskNameClass"
+                            onClick={() => checkTimesheetHandler(task.taskId)}
+                          >
+                            {task.taskName}
+                          </td>
+                        </Tooltip>
+
                         <td>
                           {Object.values(hours[task.taskId] || {}).reduce(
                             (acc, hour) => acc + Number(hour || 0),
@@ -432,28 +487,56 @@ const EmployeeScreen = () => {
                           )}
                         </td>
                         {Array.from({ length: visibleDays }, (_, dayIndex) => (
-                          <td
-                            key={dayIndex + 1}
-                            onClick={() => console.log(dayIndex + 1)}
-                          >
-                            <input
-                              className={`custom-input ${
-                                isWeekend(dayIndex + 1) ? "weekend-input" : ""
-                              }`}
-                              type="number"
-                              value={hours[task.taskId]?.[dayIndex + 1] || ""}
-                              onChange={(e) =>
-                                handleHourChange(task.taskId, dayIndex + 1, e)
-                              }
-                              onClick={() =>
-                                handleInputClick(
-                                  task.taskId,
-                                  dayIndex + 1,
-                                  task.employeeId
-                                )
-                              }
-                              disabled={isDisabled}
-                            />
+                          <td key={dayIndex + 1}>
+                            <div className="input-comment-container">
+                              <input
+                                className={`custom-input ${
+                                  isWeekend(dayIndex + 1) ? "weekend-input" : ""
+                                }`}
+                                type="number"
+                                placeholder="Hour"
+                                value={hours[task.taskId]?.[dayIndex + 1] || ""}
+                                onChange={(e) =>
+                                  handleHourChange(task.taskId, dayIndex + 1, e)
+                                }
+                                onClick={() =>
+                                  handleInputClick(
+                                    task.taskId,
+                                    dayIndex + 1,
+                                    task.employeeId
+                                  )
+                                }
+                                disabled={isDisabled}
+                              />
+                              <Tooltip title="Comment">
+                                <CommentOutlined
+                                  onClick={() =>
+                                    textAreaClickHandler(
+                                      task.taskId,
+                                      dayIndex + 1
+                                    )
+                                  }
+                                />
+                              </Tooltip>
+                              {activeComment &&
+                                activeComment.taskId === task.taskId &&
+                                activeComment.day === dayIndex + 1 && (
+                                  <textarea
+                                    value={
+                                      comments[task.taskId]?.[dayIndex + 1] ||
+                                      ""
+                                    }
+                                    onChange={(e) =>
+                                      handleCommentChange(
+                                        task.taskId,
+                                        dayIndex + 1,
+                                        e
+                                      )
+                                    }
+                                    style={{ position: "absolute", zIndex: 1 }}
+                                  />
+                                )}
+                            </div>
                           </td>
                         ))}
                       </tr>
@@ -476,6 +559,29 @@ const EmployeeScreen = () => {
           </div>
         </div>
       )}
+
+      <Modal
+        title="Add Comment"
+        visible={!!activeComment}
+        onCancel={() => setActiveComment(null)}
+        footer={null} // Remove the footer completely
+      >
+        <Input.TextArea
+          value={textAreaValue}
+          onChange={(e) => {
+            setTextAreaValue(e.target.value);
+            // Update comments state here
+            setComments((prevComments) => ({
+              ...prevComments,
+              [activeComment.taskId]: {
+                ...prevComments[activeComment.taskId],
+                [activeComment.day]: e.target.value,
+              },
+            }));
+          }}
+          rows={4}
+        />
+      </Modal>
     </div>
   );
 };

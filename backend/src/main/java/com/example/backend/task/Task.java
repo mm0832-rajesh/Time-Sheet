@@ -40,7 +40,7 @@ public class Task {
     private String endDate;
 
     @Column(length = 5)
-    private Long planedHour;
+    private Long plannedHour;
 
     @Column(length = 5)
     private Long billableHour;

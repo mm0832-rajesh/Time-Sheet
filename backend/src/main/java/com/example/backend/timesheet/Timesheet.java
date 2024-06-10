@@ -30,6 +30,8 @@ public class Timesheet {
     @Column(length = 2)
     private int inputHour;
 
+    private String comments;
+
     @Column(length = 10)
     private String employeeId;
 

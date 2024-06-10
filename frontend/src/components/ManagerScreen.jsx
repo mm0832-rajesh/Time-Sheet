@@ -4,10 +4,11 @@ import { useLocation } from "react-router-dom";
 // import { Link } from "react-router-dom";
 import HolidayScreen from "./HolidayScreen";
 import Calendar from "react-calendar";
-import Status from "./Status";
+// import Status from "./Status";
 import LeaveScreen from "./LeaveScreen";
 import AssignTask from "./AssignTask";
 import Approval from "./Approval";
+import { SaveOutlined, UploadOutlined } from "@ant-design/icons";
 
 const ManagerScreen = () => {
   const [showHoliday, setShowHoliday] = useState(false);
@@ -150,7 +151,7 @@ const ManagerScreen = () => {
       <div className="top">
         <div className="empHeader">
           <div className="avatar">🧑‍💼</div>
-          <div className="empName">Hi Manager</div>
+          <div className="empName">Welcome {manager.mgrName}</div>
         </div>
         <div className="navOptions">
           <div
@@ -193,15 +194,17 @@ const ManagerScreen = () => {
       {showApproval && <Approval />}
 
       {showHoliday && <HolidayScreen />}
-      {showLeave && (
-        <LeaveScreen/>
-      )}
+      {showLeave && <LeaveScreen />}
       {showTimesheet && (
         <div className="timesheetContainer">
           <div className="upperPart">
             <div className="timesheetBtns">
-              <button className="saveTimesheet">Save</button>
-              <button className="submitTimesheet">Submit</button>
+              <button className="saveTimesheet">
+                <SaveOutlined /> Save
+              </button>
+              <button className="submitTimesheet">
+                <UploadOutlined /> Submit
+              </button>
             </div>
 
             <div className="table-container">
@@ -236,7 +239,38 @@ const ManagerScreen = () => {
               tileClassName={getClassName}
               onActiveStartDateChange={handleActiveStartDateChange}
             />
-            <Status />
+            <div className="status">
+              <div className="statusContainer">
+                <div className="inputField">
+                  <label>Overall Status:</label>
+                  <input type="text" value="" disabled />
+                  {/* {console.log(formData.overallStatus)} */}
+                </div>
+                <div className="inputField">
+                  <label>Approver:</label>
+                  <input type="text" value="" disabled />
+                </div>
+                <div className="inputField">
+                  <label>Approver Remark:</label>
+                  <input type="text" value="" disabled />
+                </div>
+              </div>
+              <div className="infoContainer">
+                {[
+                  { color: "violet", label: "Today" },
+                  { color: "red", label: "Holiday" },
+                  { color: "sky", label: "Weekend" },
+                  { color: "blue", label: "Applied Leave" },
+                  { color: "darkGreen", label: "Full Day Leave" },
+                  { color: "green", label: "Half Day Leave" },
+                ].map((day, index) => (
+                  <div className="day" key={index}>
+                    <div className={`box ${day.color}`}></div>
+                    <div className="dayName">{day.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       )}

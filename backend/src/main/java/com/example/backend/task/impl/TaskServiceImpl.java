@@ -56,7 +56,7 @@ public class TaskServiceImpl implements TaskService {
             task.setTaskName(updateTask.getTaskName());
             task.setStartDate(updateTask.getStartDate());
             task.setEndDate(updateTask.getEndDate());
-            task.setPlanedHour(updateTask.getPlanedHour());
+            task.setPlannedHour(updateTask.getPlannedHour());
             task.setBillableHour(updateTask.getBillableHour());
             task.setEmployeeName(updateTask.getEmployeeName());
             task.setStatus(updateTask.getStatus());
@@ -88,7 +88,7 @@ public class TaskServiceImpl implements TaskService {
             task.setTaskName(updateTask.getTaskName());
             task.setStartDate(updateTask.getStartDate());
             task.setEndDate(updateTask.getEndDate());
-            task.setPlanedHour(updateTask.getPlanedHour());
+            task.setPlannedHour(updateTask.getPlannedHour());
             task.setBillableHour(updateTask.getBillableHour());
             task.setEmployeeName(updateTask.getEmployeeName());
             task.setStatus(updateTask.getStatus());

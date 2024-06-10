@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from "react";
 import "./login.css";
 import { useNavigate } from "react-router-dom";
+import { EyeInvisibleFilled, EyeFilled } from "@ant-design/icons";
+import { useSnackbar } from "notistack";
 
 const Login = () => {
+  const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
   const [inpData, setInpData] = useState({
     id: "",
     password: "",
   });
+  const [isVisible, setIsVisible] = useState(false);
   const [managerData, setManagerData] = useState([]);
-
   const [employeeData, setEmployeeData] = useState([]);
 
   const changeHandler = (e) => {
@@ -34,7 +37,7 @@ const Login = () => {
     } else if (employee) {
       navigate("/employee", { state: { employee } });
     } else {
-      alert("Wrong Password or UserId");
+      enqueueSnackbar('Wrong Login ID or Password', { variant: 'error' });
     }
   };
 
@@ -65,30 +68,52 @@ const Login = () => {
   }, []);
 
   return (
-    <div className="form-container">
-      <form className="loginform" onSubmit={submitHandler}>
-        <input
-          type="text"
-          name="id"
-          id="id"
-          placeholder="Enter user-id"
-          required
-          onChange={changeHandler}
-        />
-        <br />
-        <br />
-        <input
-          type="password"
-          name="password"
-          id="password"
-          placeholder="Enter password"
-          required
-          onChange={changeHandler}
-        />
-        <br />
-        <br />
-        <button className="submitBtn" type="submit">Login</button>
-      </form>
+    <div className="container">
+      <div className="logo">
+        <img src="https://maventic.com/wp-content/uploads/2022/images/home/maventic-logo.png" alt="Company Logo" />
+      </div>
+      <div className="child-container">
+        <div className="child-para">
+          <p className="main">Welcome!</p>
+          <p className="secondary">to <span className="mavenSpan">Maventic</span> Timesheet Portal</p>
+        </div>
+        <div className="login-form child">
+          <div className="greeting">Hello there! 👋</div>
+          <form onSubmit={submitHandler}>
+            <div className="form-group">
+              <label htmlFor="loginId">Login ID</label>
+              <input
+                type="text"
+                id="id"
+                name="id"
+                placeholder="Employee Number"
+                value={inpData.id}
+                onChange={changeHandler}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="password">Password</label>
+              <input
+                type={isVisible ? "text" : "password"}
+                id="password"
+                name="password"
+                placeholder="Password"
+                value={inpData.password}
+                onChange={changeHandler}
+                required
+              />
+              <div onClick={() => setIsVisible(!isVisible)} className="loginicon">
+                {isVisible ? <EyeInvisibleFilled /> : <EyeFilled />}
+              </div>
+            </div>
+            <div className="forgot-password">
+              <a href="#">Forgot password?</a>
+            </div>
+            <button className="loginSCreenBtn" type="submit">Login</button>
+          </form>
+        </div>
+      </div>
     </div>
   );
 };

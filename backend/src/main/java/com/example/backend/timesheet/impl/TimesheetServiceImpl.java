@@ -26,23 +26,23 @@ public class TimesheetServiceImpl implements TimesheetService {
 
     // @Override
     // public boolean addTimesheet(Timesheet timesheet) {
-    //     if (timesheet != null && timesheet.getTask() != null) {
-    //         Long taskId = timesheet.getTask().getTaskId();
-    //         Task task = taskRepo.findById(taskId).orElse(null);
-    //         if (task != null) {
-    //             timesheet.setTask(task);
-    //             timesheetRepo.save(timesheet);
-    //             return true;
-    //         } else {
-    //             System.out.println("Task not found for the provided taskId: " + taskId);
-    //         }
-    //     }
-    //     return false;
+    // if (timesheet != null && timesheet.getTask() != null) {
+    // Long taskId = timesheet.getTask().getTaskId();
+    // Task task = taskRepo.findById(taskId).orElse(null);
+    // if (task != null) {
+    // timesheet.setTask(task);
+    // timesheetRepo.save(timesheet);
+    // return true;
+    // } else {
+    // System.out.println("Task not found for the provided taskId: " + taskId);
+    // }
+    // }
+    // return false;
     // }
 
     public boolean addTimesheets(List<Timesheet> timesheets) {
         boolean allSaved = true;
-    
+
         for (Timesheet timesheet : timesheets) {
             if (timesheet != null && timesheet.getTask() != null) {
                 Long taskId = timesheet.getTask().getTaskId();
@@ -58,7 +58,7 @@ public class TimesheetServiceImpl implements TimesheetService {
                 allSaved = false;
             }
         }
-    
+
         return allSaved;
     }
 
@@ -73,6 +73,7 @@ public class TimesheetServiceImpl implements TimesheetService {
         // System.out.println("Task is :- "+task);
         if (timesheet != null) {
             timesheet.setInputHour(updateTimesheet.getInputHour());
+            timesheet.setComments(updateTimesheet.getComments());
             timesheetRepo.save(timesheet);
             return true;
         } else {

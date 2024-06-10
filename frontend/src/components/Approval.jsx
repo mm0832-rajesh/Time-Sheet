@@ -10,6 +10,8 @@ const Approval = () => {
   const [taskData, setTaskData] = useState([]);
   const [timeSheetData, setTimeSheetData] = useState([]);
   const [processedData, setProcessedData] = useState([]);
+  const [detailsShow, setDetailsShow] = useState(false);
+  const [timesheetDetails, setTimesheetDetails] = useState([]);
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -41,16 +43,12 @@ const Approval = () => {
   useEffect(() => {
     if (taskData.length > 0 && timeSheetData.length > 0) {
       const totalHoursMap = timeSheetData.reduce((acc, timesheet) => {
-        // console.log(timesheet);
         if (!acc[timesheet.task.taskId]) {
-          console.log(timesheet.task.taskId);
           acc[timesheet.task.taskId] = 0;
         }
         acc[timesheet.task.taskId] += timesheet.inputHour;
-        // console.log(timesheet.taskId);
         return acc;
       }, {});
-      console.log(totalHoursMap);
 
       const finalData = taskData.map(task => ({
         empId: task.employeeId,
@@ -73,6 +71,12 @@ const Approval = () => {
   const handleShow = (employee) => {
     setSelectedEmployee(employee);
     setShow(true);
+  };
+
+  const handleDetails = (taskId) => {
+    const filteredTimesheetData = timeSheetData.filter(timesheet => timesheet.task.taskId === taskId);
+    setTimesheetDetails(filteredTimesheetData);
+    setDetailsShow(true);
   };
 
   const updateTask = async (status) => {
@@ -128,10 +132,12 @@ const Approval = () => {
               <td>{employee.taskName}</td>
               <td>{employee.totalHour}</td>
               <td>{employee.submitted}</td>
-              <td>
+              <td style={{'width':'230px'}}>
                 <Button variant="primary" onClick={() => handleShow(employee)}>
-                  Action
+                  ACTION
                 </Button>
+                &nbsp; &nbsp;
+                <button type="button" class="btn btn-outline-secondary" onClick={()=>handleDetails(employee.taskId)}>DETAILS</button>
               </td>
             </tr>
           ))}
@@ -212,6 +218,37 @@ const Approval = () => {
             disabled={!remarks}
           >
             Approve
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={detailsShow} onHide={() => setDetailsShow(false)}>
+        <Modal.Header>
+          <Modal.Title>Timesheet Details for  </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Input Hour</th>
+                <th>Comments</th>
+              </tr>
+            </thead>
+            <tbody>
+              {timesheetDetails.map((timesheet, index) => (
+                <tr key={index}>
+                  <td>{timesheet.date}</td>
+                  <td>{timesheet.inputHour}</td>
+                  <td>{timesheet.comments}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="dark" onClick={() => setDetailsShow(false)}>
+            Close
           </Button>
         </Modal.Footer>
       </Modal>

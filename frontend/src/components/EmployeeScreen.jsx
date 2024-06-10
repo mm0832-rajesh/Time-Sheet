@@ -164,7 +164,7 @@ const EmployeeScreen = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(res),
+          body: JSON.stringify(...res),
         });
       }
     } catch (error) {

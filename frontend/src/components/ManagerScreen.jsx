@@ -151,7 +151,7 @@ const ManagerScreen = () => {
       <div className="top">
         <div className="empHeader">
           <div className="avatar">🧑‍💼</div>
-          <div className="empName">Welcome {manager.mgrName}</div>
+          <div className="empName">Welcome {manager.empName}</div>
         </div>
         <div className="navOptions">
           <div

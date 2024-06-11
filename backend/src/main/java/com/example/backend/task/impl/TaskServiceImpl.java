@@ -7,12 +7,6 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-// import com.example.backend.employee.Employee;
-// import com.example.backend.employee.EmployeeRepo;
-// import com.example.backend.employee.impl.EmployeeServiceImpl;
-import com.example.backend.manager.Manager;
-import com.example.backend.manager.ManagerRepo;
-import com.example.backend.manager.impl.ManagerServiceImpl;
 import com.example.backend.task.Task;
 import com.example.backend.task.TaskRepo;
 import com.example.backend.task.TaskService;
@@ -23,28 +17,14 @@ public class TaskServiceImpl implements TaskService {
     @Autowired
     private TaskRepo taskRepo;
 
-    // @Autowired
-    // private EmployeeRepo employeeRepo;
-
-    // @Autowired
-    // private EmployeeServiceImpl employeeServiceImpl;
-
-    @Autowired
-    private ManagerRepo managerRepo;
-
-    @Autowired
-    private ManagerServiceImpl managerServiceImpl;
-
     @Override
     public boolean createTask(Task task) {
-        Manager manager1 = managerRepo.findById("mm0834").orElse(null);
-        if (manager1 != null) {
-            task.setManager(manager1);
-            taskRepo.save(task);
-            return true;
-        } else {
-            return false; // Manager not found, task creation failed
-        }
+      if(task!=null){
+        taskRepo.save(task);
+        return true;
+      }
+      return false;
+       
     }
 
     @Override
@@ -56,11 +36,16 @@ public class TaskServiceImpl implements TaskService {
             task.setTaskName(updateTask.getTaskName());
             task.setStartDate(updateTask.getStartDate());
             task.setEndDate(updateTask.getEndDate());
-            task.setPlannedHour(updateTask.getPlannedHour());
+            task.setPlanedHour(updateTask.getPlanedHour());
             task.setBillableHour(updateTask.getBillableHour());
-            task.setEmployeeName(updateTask.getEmployeeName());
-            task.setStatus(updateTask.getStatus());
-            task.setRemarks(updateTask.getRemarks());
+            task.setAssignerId(updateTask.getAssignerId());
+            task.setApproverId(updateTask.getApproverId());
+            task.setCurrentApproverId(updateTask.getCurrentApproverId());
+            task.setApproverStatus(updateTask.getApproverStatus());
+            task.setApproverRemarks(updateTask.getApproverRemarks());
+            task.setLineManRemarks(updateTask.getLineManRemarks());
+            task.setLineManStatus(updateTask.getLineManStatus());
+            task.setOverallStatus(updateTask.getOverallStatus());
             // task.setEmployeeId(updateTask.getEmployeeId());
             taskRepo.save(task);
             return true;
@@ -88,11 +73,16 @@ public class TaskServiceImpl implements TaskService {
             task.setTaskName(updateTask.getTaskName());
             task.setStartDate(updateTask.getStartDate());
             task.setEndDate(updateTask.getEndDate());
-            task.setPlannedHour(updateTask.getPlannedHour());
+            task.setPlanedHour(updateTask.getPlanedHour());
             task.setBillableHour(updateTask.getBillableHour());
-            task.setEmployeeName(updateTask.getEmployeeName());
-            task.setStatus(updateTask.getStatus());
-            task.setRemarks(updateTask.getRemarks());
+            task.setAssignerId(updateTask.getAssignerId());
+            task.setApproverId(updateTask.getApproverId());
+            task.setCurrentApproverId(updateTask.getCurrentApproverId());
+            task.setApproverStatus(updateTask.getApproverStatus());
+            task.setApproverRemarks(updateTask.getApproverRemarks());
+            task.setLineManRemarks(updateTask.getLineManRemarks());
+            task.setLineManStatus(updateTask.getLineManStatus());
+            task.setOverallStatus(updateTask.getOverallStatus());
             // task.setEmployeeId(updateTask.getEmployeeId());
             taskRepo.save(task);
             return true;
@@ -111,8 +101,8 @@ public class TaskServiceImpl implements TaskService {
         Optional<Task> taskOptional = taskRepo.findById(taskId);
         if (taskOptional.isPresent()) {
             Task task = taskOptional.get();
-            task.setStatus(updateTask.getStatus());
-            task.setRemarks(updateTask.getRemarks());
+            task.setOverallStatus(updateTask.getOverallStatus());
+            task.setLineManRemarks(updateTask.getLineManRemarks());
             taskRepo.save(task);
             return true;
         } else {

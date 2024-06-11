@@ -313,3 +313,7 @@ td {
   cursor: pointer;
   color: orangered;
 }
+
+.comment-icon {
+  color: blue;
+}

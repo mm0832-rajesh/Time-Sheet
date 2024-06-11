@@ -4,8 +4,6 @@ import java.util.List;
 
 // import java.util.List;
 
-// import com.example.backend.employee.Employee;
-import com.example.backend.manager.Manager;
 import com.example.backend.timesheet.Timesheet;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -14,10 +12,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-// import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -40,32 +35,43 @@ public class Task {
     private String endDate;
 
     @Column(length = 5)
-    private Long plannedHour;
+    private Long planedHour;
 
     @Column(length = 5)
     private Long billableHour;
-
-    @Column(length = 20)
-    private String employeeName;
 
     @Column(length = 10)
     private String employeeId;
 
     @Column(length = 10)
-    private String status;
+    private String empStatus;
+
+    @Column(length = 10)
+    private String assignerId;
+
+    @Column(length = 10)
+    private String approverId;
+
+    @Column (length = 10)
+    private String currentApproverId;
 
     @Column(length = 40)
-    private String remarks;
+    private String approverStatus;
 
-    @JsonIgnore
-    @ManyToOne
-    private Manager manager;
+    @Column(length = 40)
+    private String approverRemarks;
+
+    @Column(length = 40)
+    private String lineManStatus;
+
+    @Column(length = 40)
+    private String lineManRemarks;
+
+    @Column(length = 40)
+    private String overallStatus;
 
     @JsonIgnore
     @OneToMany(mappedBy = "task")
     private List<Timesheet> Timesheet;
 
-    // @JsonIgnore
-    // @ManyToOne
-    // private Employee employee;
 }

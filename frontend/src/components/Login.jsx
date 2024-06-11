@@ -12,7 +12,6 @@ const Login = () => {
     password: "",
   });
   const [isVisible, setIsVisible] = useState(false);
-  const [managerData, setManagerData] = useState([]);
   const [employeeData, setEmployeeData] = useState([]);
 
   const changeHandler = (e) => {
@@ -25,34 +24,25 @@ const Login = () => {
 
   const submitHandler = (e) => {
     e.preventDefault();
-    const manager = managerData.find(
-      (mgr) => inpData.id === mgr.mgrId && inpData.password === mgr.mgrPassword
-    );
+
+    const managerRoles = ["Project Manager", "Team Manager", "HR"];
+
+    // Check if the input data matches any employee's credentials
     const employee = employeeData.find(
       (emp) => inpData.id === emp.empId && inpData.password === emp.empPassword
     );
 
-    if (manager) {
-      navigate("/manager", { state: { manager } });
-    } else if (employee) {
-      navigate("/employee", { state: { employee } });
+    if (employee) {
+      // Check if the found employee is a manager
+      if (managerRoles.includes(employee.role)) {
+        navigate("/manager", { state: { manager: employee } });
+      } else {
+        navigate("/employee", { state: { employee } });
+      }
     } else {
-      enqueueSnackbar('Wrong Login ID or Password', { variant: 'error' });
+      enqueueSnackbar("Wrong Login ID or Password", { variant: "error" });
     }
   };
-
-  useEffect(() => {
-    const getData = async () => {
-      try {
-        let response = await fetch("http://localhost:8000/manager");
-        let mgrData = await response.json();
-        setManagerData(mgrData);
-      } catch (error) {
-        console.warn("Something went wrong: " + error);
-      }
-    };
-    getData();
-  }, []);
 
   useEffect(() => {
     const getData = async () => {
@@ -70,12 +60,17 @@ const Login = () => {
   return (
     <div className="container">
       <div className="logo">
-        <img src="https://maventic.com/wp-content/uploads/2022/images/home/maventic-logo.png" alt="Company Logo" />
+        <img
+          src="https://maventic.com/wp-content/uploads/2022/images/home/maventic-logo.png"
+          alt="Company Logo"
+        />
       </div>
       <div className="child-container">
         <div className="child-para">
           <p className="main">Welcome!</p>
-          <p className="secondary">to <span className="mavenSpan">Maventic</span> Timesheet Portal</p>
+          <p className="secondary">
+            to <span className="mavenSpan">Maventic</span> Timesheet Portal
+          </p>
         </div>
         <div className="login-form child">
           <div className="greeting">Hello there! 👋</div>
@@ -103,14 +98,19 @@ const Login = () => {
                 onChange={changeHandler}
                 required
               />
-              <div onClick={() => setIsVisible(!isVisible)} className="loginicon">
+              <div
+                onClick={() => setIsVisible(!isVisible)}
+                className="loginicon"
+              >
                 {isVisible ? <EyeInvisibleFilled /> : <EyeFilled />}
               </div>
             </div>
             <div className="forgot-password">
               <a href="#">Forgot password?</a>
             </div>
-            <button className="loginSCreenBtn" type="submit">Login</button>
+            <button className="loginSCreenBtn" type="submit">
+              Login
+            </button>
           </form>
         </div>
       </div>

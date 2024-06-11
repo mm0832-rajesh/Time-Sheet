@@ -510,6 +510,7 @@ const EmployeeScreen = () => {
                               />
                               <Tooltip title="Comment">
                                 <CommentOutlined
+                                className="comment-icon"
                                   onClick={() =>
                                     textAreaClickHandler(
                                       task.taskId,

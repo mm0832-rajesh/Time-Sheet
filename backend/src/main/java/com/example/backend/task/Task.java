@@ -30,6 +30,9 @@ public class Task {
     @Column(length = 20)
     private String taskName;
 
+    @Column(length = 20)
+    private String employeeName;
+
     private String startDate;
 
     private String endDate;

@@ -7,6 +7,9 @@ const AssignTask = ({ manager }) => {
   const [assignTaskBtn, setAssignTaskBtn] = useState(false);
   const [formData, setFormData] = useState({
     employeeId: "",
+    assignerId: manager.empId,
+    approverId: manager.empId,
+    currentApproverId: manager.empId,
     employeeName: "",
     taskName: "",
     startDate: "",
@@ -16,6 +19,10 @@ const AssignTask = ({ manager }) => {
   });
   const [TaskData, setTaskData] = useState([]);
   const [tempId, setTempId] = useState(0);
+
+  const [associatedEmployeeData, setAssociatedEmployeeData] = useState([]);
+  const [employeeData, setEmployeeData] = useState([]);
+  const [roleData, setRoleData] = useState([]);
 
   const handleOpenPopup = () => {
     setAssignTaskBtn(true);
@@ -28,11 +35,14 @@ const AssignTask = ({ manager }) => {
 
     setFormData({
       employeeId: "",
+      assignerId: manager.empId,
+      approverId: manager.empId,
+      currentApproverId: manager.empId,
       employeeName: "",
       taskName: "",
       startDate: "",
       endDate: "",
-      planedHour: 0,
+      plannedHour: 0,
       billableHour: 0,
     });
   };
@@ -57,12 +67,21 @@ const AssignTask = ({ manager }) => {
 
     try {
       if (tempId) {
+
+         // Preserve existing IDs when updating
+      const updatedFormData = {
+        ...formData,
+        assignerId: manager.empId,
+        approverId: manager.empId,
+        currentApproverId: manager.empId,
+      };
+
         await fetch(`http://localhost:8000/task/${tempId}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(updatedFormData),
         });
       } else {
         await fetch("http://localhost:8000/task", {
@@ -79,38 +98,45 @@ const AssignTask = ({ manager }) => {
 
     setFormData({
       employeeId: "",
+      assignerId: manager.empId,
+      approverId: manager.empId,
+      currentApproverId: manager.empId,
       employeeName: "",
       taskName: "",
       startDate: "",
       endDate: "",
-      planedHour: 0,
+      plannedHour: 0,
       billableHour: 0,
     });
 
+    setAssignTaskBtn(false);
     setShowPopup(false);
+    fetchTaskData();  // Refresh the task list after saving
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
 
     if (name === "employeeId") {
-      const selectedEmployee = manager.employees.find(
+      const selectedEmployee = associatedEmployeeData.find(
         (employee) => employee.empId === value
       );
+
       if (selectedEmployee) {
-        setFormData({
-          ...formData,
+        setFormData((prevData) => ({
+          ...prevData,
           employeeId: value,
           employeeName: selectedEmployee.empName,
-        });
+        }));
       } else {
-        setFormData({
-          ...formData,
+        setFormData((prevData) => ({
+          ...prevData,
           employeeId: value,
           employeeName: "",
-        });
+        }));
       }
+    } else {
+      setFormData((prevData) => ({ ...prevData, [name]: value }));
     }
   };
 
@@ -124,7 +150,7 @@ const AssignTask = ({ manager }) => {
         taskName: taskToEdit.taskName,
         startDate: taskToEdit.startDate,
         endDate: taskToEdit.endDate,
-        planedHour: taskToEdit.planedHour,
+        plannedHour: taskToEdit.plannedHour,
         billableHour: taskToEdit.billableHour,
       });
       setAssignTaskBtn(true);
@@ -132,24 +158,67 @@ const AssignTask = ({ manager }) => {
     }
   };
 
-  useEffect(() => {
-    const fetchTaskData = async () => {
+  const fetchTaskData = async () => {
+    try {
       const response = await fetch("http://localhost:8000/task");
       const data = await response.json();
-      setTaskData(data);
-    };
+      // Filter tasks to include only those assigned by the logged-in manager
+      const filteredData = data.filter(task => task.assignerId === manager.empId);
+      setTaskData(filteredData);
+    } catch (error) {
+      console.log("Error is : ", error);
+    }
+  };
+
+  useEffect(() => {
     fetchTaskData();
+  }, [manager.empId]);  // Fetch tasks only when manager.empId changes
+
+  useEffect(() => {
+    const fetchEmployeeData = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/employee");
+        const data = await response.json();
+        setEmployeeData(data);
+      } catch (error) {
+        console.log("Error is : ", error);
+      }
+    };
+    fetchEmployeeData();
   }, []);
+
+  useEffect(() => {
+    const fetchRoleData = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/roles");
+        const data = await response.json();
+        const res = data.filter((item) => {
+          return item.assigner === manager.role;
+        });
+        setRoleData(res);
+      } catch (error) {
+        console.log("Error is : ", error);
+      }
+    };
+    fetchRoleData();
+  }, [manager.role]);
+
+  useEffect(() => {
+    const matchedEmployees = employeeData.filter((employee) =>
+      roleData.some((role) => role.role === employee.role)
+    );
+    setAssociatedEmployeeData(matchedEmployees);
+  }, [employeeData, roleData]);
 
   return (
     <div className="taskAssignment-container">
       <div className="assignTaskBtn">
         <button
-        className="tasksAssignBtn"
+          className="tasksAssignBtn"
           disabled={assignTaskBtn}
           onClick={handleOpenPopup}
         >
-          <EditOutlined/> Assign Task
+          <EditOutlined /> Assign Task
         </button>
       </div>
       <div className={`content-container ${showPopup ? "show-popup" : ""}`}>
@@ -168,7 +237,7 @@ const AssignTask = ({ manager }) => {
                     onChange={handleChange}
                   >
                     <option value="">Select Employee ID</option>
-                    {manager.employees.map((employee) => (
+                    {associatedEmployeeData.map((employee) => (
                       <option key={employee.empId} value={employee.empId}>
                         {employee.empId}
                       </option>
@@ -207,7 +276,7 @@ const AssignTask = ({ manager }) => {
                     Start Date<span className="required">* </span>
                   </label>
                   <input
-                   style={{textTransform: "uppercase"}}
+                    style={{ textTransform: "uppercase" }}
                     type="date"
                     name="startDate"
                     id="startDate"
@@ -220,7 +289,7 @@ const AssignTask = ({ manager }) => {
                     End Date<span className="required">* </span>
                   </label>
                   <input
-                  style={{textTransform: "uppercase"}}
+                    style={{ textTransform: "uppercase" }}
                     type="date"
                     name="endDate"
                     id="endDate"
@@ -229,11 +298,11 @@ const AssignTask = ({ manager }) => {
                   />
                 </div>
                 <div className="right">
-                  <label htmlFor="planedHour">Planned Hours:</label>
+                  <label htmlFor="plannedHour">Planned Hours:</label>
                   <input
                     type="number"
                     name="plannedHour"
-                    id="planedHour"
+                    id="plannedHour"
                     value={formData.plannedHour}
                     onChange={handleChange}
                   />
@@ -251,18 +320,15 @@ const AssignTask = ({ manager }) => {
               </div>
               <div className="form-btns">
                 <button
-                className="cancelAssignTaskBtn"
-                  style={{ margin: "5px"}}
+                  className="cancelAssignTaskBtn"
+                  style={{ margin: "5px" }}
                   type="button"
                   onClick={handleClosePopup}
                 >
-                 <CloseOutlined/> Cancel
+                  <CloseOutlined /> Cancel
                 </button>
-                <button
-                className="saveAssignTaskBtn"
-                  type="submit"
-                >
-                <SaveOutlined/> Save
+                <button className="saveAssignTaskBtn" type="submit">
+                  <SaveOutlined /> Save
                 </button>
               </div>
             </form>
@@ -284,17 +350,14 @@ const AssignTask = ({ manager }) => {
             <tbody>
               {TaskData &&
                 TaskData.map((item) => (
-                  <tr
-                    key={item.taskId}
-                    onClick={() => editHandler(item.taskId)}
-                  >
+                  <tr key={item.taskId} onClick={() => editHandler(item.taskId)}>
                     <td>{item.employeeId}</td>
                     <td>{item.employeeName}</td>
                     <td>{item.taskName}</td>
                     <td>{item.startDate}</td>
                     <td>{item.endDate}</td>
                     <td>{item.billableHour}</td>
-                    <td>{item.planedHour}</td>
+                    <td>{item.plannedHour}</td>
                   </tr>
                 ))}
             </tbody>

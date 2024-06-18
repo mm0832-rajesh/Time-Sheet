@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.role.impl.RoleAssignerImpl;
 
-
 @CrossOrigin
 @RestController
 @RequestMapping("/roles")
@@ -21,10 +20,10 @@ public class RoleController {
     @Autowired
     private RoleAssignerImpl roleAssignerImpl;
 
-    @GetMapping("/{assigner}")
-     public ResponseEntity<List<Role>> getRolesByAssigner(@PathVariable String assigner) {
-        if (!roleAssignerImpl.findByAssigner(assigner).isEmpty()) {
-            return new ResponseEntity<>(roleAssignerImpl.findByAssigner(assigner), HttpStatus.OK);
+    @GetMapping
+    public ResponseEntity<List<Role>> getRolesByAssigner() {
+        if (!roleAssignerImpl.getAllRoles().isEmpty()) {
+            return new ResponseEntity<>(roleAssignerImpl.getAllRoles(), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }

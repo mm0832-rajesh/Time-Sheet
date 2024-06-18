@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./employeeScreen.css";
 import { useLocation } from "react-router-dom";
 import HolidayScreen from "./HolidayScreen";
@@ -11,12 +11,17 @@ import {
   UploadOutlined,
 } from "@ant-design/icons";
 import { Tooltip, Modal, Input } from "antd";
+import AssignTask from "./AssignTask";
+import Approval from "./Approval";
+import HolidayMonth from "./HolidayMonth";
 
 const EmployeeScreen = () => {
   const [showHoliday, setShowHoliday] = useState(false);
   const [showLeave, setShowLeave] = useState(false);
   const [showTimesheet, setShowTimesheet] = useState(true);
   const [visibleDays, setVisibleDays] = useState(0);
+  const [showAssignTask, setShowAssignTask] = useState(false);
+  const [showApproval, setShowApproval] = useState(false);
 
   const [date, setDate] = useState(new Date());
   const [holidayData, setHolidayData] = useState([]);
@@ -50,6 +55,13 @@ const EmployeeScreen = () => {
     },
   });
 
+  const [showEightHour, setShowEightHour] = useState({});
+
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+
+  const [filteredEmpTaskData, setFilteredEmpTaskData] = useState([]);
+
   const handleOptionClick = (option, handler) => {
     setActive(option);
     handler();
@@ -79,13 +91,18 @@ const EmployeeScreen = () => {
       return "weekend";
     }
 
-    const result = `${date.toLocaleString("default", {
+    const formattedDate = `${date.toLocaleString("default", {
       month: "short",
     })} ${date.getDate()}`;
 
     const isHoliday = holidayData.some((holiday) => {
-      const extractedDate = extractMonthAndDate(holiday.date);
-      return extractedDate === result;
+      // Ensure to correctly format and compare the holiday date
+      const holidayDate = new Date(holiday.date);
+      const extractedDate = `${holidayDate.toLocaleString("default", {
+        month: "short",
+      })} ${holidayDate.getDate()}`;
+
+      return extractedDate === formattedDate;
     });
 
     if (isHoliday) {
@@ -101,28 +118,54 @@ const EmployeeScreen = () => {
       const month = activeStartDate.getMonth();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
       setVisibleDays(daysInMonth);
+      setCurrentMonth(month);
+      setCurrentYear(year);
     }
   };
 
   const location = useLocation();
   const { employee } = location.state || {};
 
+  // console.log(employee);
+
   const holidayHandler = () => {
     setShowHoliday(true);
+    setShowAssignTask(false);
     setShowLeave(false);
     setShowTimesheet(false);
+    setShowApproval(false);
   };
 
   const leaveHandler = () => {
     setShowLeave(true);
+    setShowAssignTask(false);
     setShowHoliday(false);
     setShowTimesheet(false);
+    setShowApproval(false);
   };
 
   const timesheetHandler = () => {
     setShowTimesheet(true);
-    setShowHoliday(false);
     setShowLeave(false);
+    setShowAssignTask(false);
+    setShowHoliday(false);
+    setShowApproval(false);
+  };
+
+  const assignTaskHandler = () => {
+    setShowTimesheet(false);
+    setShowLeave(false);
+    setShowAssignTask(true);
+    setShowHoliday(false);
+    setShowApproval(false);
+  };
+
+  const approvalHandler = () => {
+    setShowTimesheet(false);
+    setShowLeave(false);
+    setShowAssignTask(false);
+    setShowHoliday(false);
+    setShowApproval(true);
   };
 
   useEffect(() => {
@@ -146,82 +189,108 @@ const EmployeeScreen = () => {
     handleActiveStartDateChange({ activeStartDate, view: "month" });
   }, []);
 
-  const saveTimesheetHandler = useCallback(async () => {
-    const res = [];
-    res.push(timesheetObject);
-    try {
-      if (timesheetResult && timesheetResult.id) {
-        await fetch(`http://localhost:8000/timesheet/${timesheetResult.id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(timesheetObject),
+  const saveTimesheetHandler = async () => {
+    const timesheetObjects = [];
+
+    // Construct timesheet objects from the hours state
+    Object.keys(hours).forEach((taskId) => {
+      Object.keys(hours[taskId]).forEach((day) => {
+        const value = hours[taskId][day];
+        const currentDate = new Date();
+        const year = currentDate.getFullYear();
+        const month = currentDate.toLocaleString("default", { month: "short" });
+        const dateString = `${year}-${month}-${day}`;
+
+        timesheetObjects.push({
+          inputHour: value,
+          comments: comments[taskId]?.[day] || "",
+          date: dateString,
+          employeeId: employee.empId,
+          task: { taskId },
         });
-      } else {
+      });
+    });
+
+    try {
+      // Fetch all existing timesheets to check if any entry already exists
+      const response = await fetch("http://localhost:8000/timesheet");
+      const data = await response.json();
+
+      const updatePromises = [];
+      let createObjects = [];
+
+      timesheetObjects.forEach((timesheetObject) => {
+        // console.log(timesheetObject);
+        // Check if there is an existing timesheet entry with the same date and taskId
+        const existingTimesheet = data.find((entry) => {
+          // console.log(entry);
+          return (
+            entry.date === timesheetObject.date &&
+            entry.task.taskId === Number(timesheetObject.task.taskId)
+          );
+        });
+        // console.log(existingTimesheet);
+
+        if (existingTimesheet) {
+          // Update the existing entry
+          updatePromises.push(
+            fetch(`http://localhost:8000/timesheet/${existingTimesheet.id}`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(timesheetObject),
+            })
+          );
+        } else {
+          // Add to the list of new entries to be created
+          createObjects.push(timesheetObject);
+        }
+      });
+
+      // console.log(updatePromises);
+      // console.log(createObjects);
+
+      // Create new entries if there are any
+      if (createObjects.length > 0) {
         await fetch("http://localhost:8000/timesheet", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(...res),
+          body: JSON.stringify(createObjects),
         });
+
+        createObjects = [];
       }
+      alert("Timesheet sucessfully saved");
+      // Await all update promises
+      // await Promise.all(updatePromises);
     } catch (error) {
       console.log("Error is : ", error);
     }
-  }, [timesheetObject, timesheetResult]);
+  };
 
   const submitTimesheetHandler = async () => {
-    const errorMessages = [];
-
-    const allTasksFilled = empTaskData.every((task) => {
-      for (let day = 1; day <= visibleDays; day++) {
-        const value = hours[task.taskId]?.[day];
-        const date = new Date(
-          new Date().getFullYear(),
-          new Date().getMonth(),
-          day
-        );
-        const dayOfWeek = date.getDay();
-        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-
-        const holiday = holidayData.some((holiday) => {
-          const holidayDate = new Date(holiday.date);
-          return (
-            holidayDate.getDate() === day &&
-            holidayDate.getMonth() === date.getMonth() &&
-            holidayDate.getFullYear() === date.getFullYear()
-          );
-        });
-
-        if (isWeekend || holiday) {
-          if (value !== undefined && value !== "") {
-            errorMessages.push(
-              `Day ${day}: Should be empty for weekends/holidays.`
-            );
-          }
-        } else {
-          if (
-            value === undefined ||
-            value === "" ||
-            isNaN(value) ||
-            Number(value) !== 8
-          ) {
-            errorMessages.push(`Day ${day}: Should be exactly 8 hours.`);
-            return false;
-          }
-        }
-      }
-      return true;
-    });
-
-    if (!allTasksFilled) {
-      alert(`Errors found:\n${errorMessages.join("\n")}`);
-      return;
-    }
+    console.log(showEightHour);
 
     try {
+      // const invalidDays = [];
+      // Object.entries(showEightHour).forEach(([day, hours]) => {
+      //   if (hours !== 8) {
+      //     invalidDays.push(day);
+      //   }
+      // });
+
+      // if (invalidDays.length > 0) {
+      //   alert(
+      //     `Total hours for day(s) ${invalidDays.join(
+      //       ", "
+      //     )} should be exactly 8. Please correct before submitting.`
+      //   );
+      //   return;
+      // }
+
       for (const task of empTaskData) {
         const taskResponse = await fetch(
           `http://localhost:8000/task/${task.taskId}`
@@ -230,7 +299,11 @@ const EmployeeScreen = () => {
           throw new Error(`Failed to fetch task with ID ${task.taskId}`);
         }
         const taskData = await taskResponse.json();
-        taskData.status = "submitted";
+        // console.log(taskData);
+        taskData.overallStatus = "submitted";
+        taskData.empStatus = "submitted";
+
+        console.log(taskData.empStatus);
 
         const updateResponse = await fetch(
           `http://localhost:8000/task/${task.taskId}`,
@@ -284,11 +357,7 @@ const EmployeeScreen = () => {
   const handleHourChange = (taskId, day, e) => {
     const { value } = e.target;
 
-    const currentDate = new Date();
-    const year = currentDate.getFullYear();
-    const month = currentDate.toLocaleString("default", { month: "short" });
-    const dateString = `${year}-${month}-${day}`;
-
+    // Update the hours state for the specific taskId and day
     setHours((prevHours) => ({
       ...prevHours,
       [taskId]: {
@@ -296,20 +365,29 @@ const EmployeeScreen = () => {
         [day]: value,
       },
     }));
-
-    setTimesheetObject((prev) => {
-      return {
-        ...prev,
-        inputHour: value,
-        comments: comments[taskId]?.[day] || "",
-        date: dateString,
-        employeeId: employee.empId,
-        task: {
-          taskId: taskId,
-        },
-      };
-    });
   };
+
+  useEffect(() => {
+    // Calculate total hours for each day whenever 'hours' state changes
+    const calculateTotalHoursPerDay = () => {
+      const totalHoursPerDay = {};
+
+      // Iterate through each taskId
+      Object.keys(hours).forEach((taskId) => {
+        // Iterate through each day for the current taskId
+        Object.keys(hours[taskId]).forEach((day) => {
+          const currentHours = parseFloat(hours[taskId][day]) || 0;
+          totalHoursPerDay[day] = (totalHoursPerDay[day] || 0) + currentHours;
+        });
+      });
+
+      // Update showEightHour state with total hours for each day
+      setShowEightHour(totalHoursPerDay);
+    };
+
+    // Call the function to calculate total hours initially and whenever 'hours' state changes
+    calculateTotalHoursPerDay();
+  }, [hours]); // Dependency array ensures this effect runs whenever 'hours' state changes
 
   useEffect(() => {
     const fetchData = async () => {
@@ -326,12 +404,28 @@ const EmployeeScreen = () => {
     return dayOfWeek === 0 || dayOfWeek === 6;
   };
 
+  const isHoliday = (day) => {
+    const formattedDate = `${date.toLocaleString("default", {
+      month: "short",
+    })} ${day}`;
+    return holidayData.some((holiday) => {
+      const holidayDate = new Date(holiday.date);
+      const extractedDate = `${holidayDate.toLocaleString("default", {
+        month: "short",
+      })} ${holidayDate.getDate()}`;
+      return extractedDate === formattedDate;
+    });
+  };
+
   const checkTimesheetHandler = (id) => {
     let tempData = taskData.filter((task) => {
       return task.employeeId === employee.empId;
     });
 
+    console.log(id);
+
     let valObj = tempData.find((item) => item.taskId === id);
+    console.log(valObj);
     setStatusObj(valObj);
   };
 
@@ -345,19 +439,6 @@ const EmployeeScreen = () => {
     });
     setTimesheetResult(res);
   };
-
-  useEffect(() => {
-    const handleKeyPress = (event) => {
-      if (event.key === "Enter") {
-        saveTimesheetHandler();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyPress);
-    return () => {
-      window.removeEventListener("keydown", handleKeyPress);
-    };
-  }, [saveTimesheetHandler]);
 
   const textAreaClickHandler = (taskId, day) => {
     setActiveComment({ taskId, day });
@@ -388,6 +469,17 @@ const EmployeeScreen = () => {
     }));
   };
 
+  useEffect(() => {
+    const filteredTasks = empTaskData.filter((task) => {
+      const taskStartDate = new Date(task.startDate);
+      return (
+        taskStartDate.getFullYear() === currentYear &&
+        taskStartDate.getMonth() === currentMonth
+      );
+    });
+    setFilteredEmpTaskData(filteredTasks);
+  }, [empTaskData, currentMonth, currentYear]);
+
   return (
     <div className="empScreen-container">
       <div className="top">
@@ -398,6 +490,30 @@ const EmployeeScreen = () => {
           </div>
         </div>
         <div className="navOptions">
+          {(employee.role === "Project Manager" ||
+            employee.role === "Team Manager" ||
+            employee.role === "HR") && (
+            <div
+              className={`taskAssign ${
+                active === "taskAssign" ? "active" : ""
+              }`}
+              onClick={() => handleOptionClick("taskAssign", assignTaskHandler)}
+            >
+              AssignTask
+            </div>
+          )}
+
+          {(employee.role === "Project Manager" ||
+            employee.role === "Team Manager" ||
+            employee.role === "HR") && (
+            <div
+              className={`approval ${active === "approval" ? "active" : ""}`}
+              onClick={() => handleOptionClick("approval", approvalHandler)}
+            >
+              Approval
+            </div>
+          )}
+
           <div
             className={`timesheet ${active === "timesheet" ? "active" : ""}`}
             onClick={() => handleOptionClick("timesheet", timesheetHandler)}
@@ -418,6 +534,10 @@ const EmployeeScreen = () => {
           </div>
         </div>
       </div>
+
+      {showAssignTask && <AssignTask manager={employee} />}
+
+      {showApproval && <Approval approverId={employee.empId} />}
 
       {showHoliday && <HolidayScreen />}
       {showLeave && <LeaveScreen />}
@@ -448,103 +568,157 @@ const EmployeeScreen = () => {
                 </thead>
                 <tbody>
                   {empTaskData.length ? (
-                    empTaskData.map((task, taskIndex) => (
-                      <tr key={task.taskId}>
-                        <Tooltip
-                          title={
-                            <>
-                              <div>
-                                <strong>Task Name:</strong> {task.taskName}
-                              </div>
-                              <div>
-                                <strong>Start Date:</strong> {task.startDate}
-                              </div>
-                              <div>
-                                <strong>End Date:</strong> {task.endDate}
-                              </div>
-                              <div>
-                                <strong>Status:</strong> {task.status}
-                              </div>
-                              <div>
-                                <strong>Billable Hours:</strong>{" "}
-                                {task.billableHour}
-                              </div>
-                            </>
-                          }
-                        >
-                          <td
-                            className="taskNameClass"
-                            onClick={() => checkTimesheetHandler(task.taskId)}
-                          >
-                            {task.taskName}
-                          </td>
-                        </Tooltip>
+                    empTaskData.map((task, taskIndex) => {
+                      const taskStartDate = new Date(task.startDate);
+                      const taskStartMonth = taskStartDate.getMonth();
+                      const taskStartYear = taskStartDate.getFullYear();
 
-                        <td>
-                          {Object.values(hours[task.taskId] || {}).reduce(
-                            (acc, hour) => acc + Number(hour || 0),
-                            0
-                          )}
-                        </td>
-                        {Array.from({ length: visibleDays }, (_, dayIndex) => (
-                          <td key={dayIndex + 1}>
-                            <div className="input-comment-container">
-                              <input
-                                className={`custom-input ${
-                                  isWeekend(dayIndex + 1) ? "weekend-input" : ""
-                                }`}
-                                type="number"
-                                placeholder="Hour"
-                                value={hours[task.taskId]?.[dayIndex + 1] || ""}
-                                onChange={(e) =>
-                                  handleHourChange(task.taskId, dayIndex + 1, e)
-                                }
+                      // Check if task's start month and year match the current displayed month and year
+                      if (
+                        taskStartMonth === currentMonth &&
+                        taskStartYear === currentYear
+                      ) {
+                        return (
+                          <tr key={task.taskId}>
+                            <Tooltip
+                              title={
+                                <>
+                                  <div>
+                                    <strong>Task Name:</strong> {task.taskName}
+                                  </div>
+                                  <div>
+                                    <strong>Start Date:</strong>{" "}
+                                    {task.startDate}
+                                  </div>
+                                  <div>
+                                    <strong>End Date:</strong> {task.endDate}
+                                  </div>
+                                  <div>
+                                    <strong>Status:</strong>{" "}
+                                    {task.overallStatus}
+                                  </div>
+                                  <div>
+                                    <strong>Billable Hours:</strong>{" "}
+                                    {task.billableHour}
+                                  </div>
+                                </>
+                              }
+                            >
+                              <td
+                                className="taskNameClass"
                                 onClick={() =>
-                                  handleInputClick(
-                                    task.taskId,
-                                    dayIndex + 1,
-                                    task.employeeId
-                                  )
+                                  checkTimesheetHandler(task.taskId)
                                 }
-                                disabled={isDisabled}
-                              />
-                              <Tooltip title="Comment">
-                                <CommentOutlined
-                                className="comment-icon"
-                                  onClick={() =>
-                                    textAreaClickHandler(
-                                      task.taskId,
-                                      dayIndex + 1
-                                    )
-                                  }
-                                />
-                              </Tooltip>
-                              {activeComment &&
-                                activeComment.taskId === task.taskId &&
-                                activeComment.day === dayIndex + 1 && (
-                                  <textarea
-                                    value={
-                                      comments[task.taskId]?.[dayIndex + 1] ||
-                                      ""
-                                    }
-                                    onChange={(e) =>
-                                      handleCommentChange(
-                                        task.taskId,
-                                        dayIndex + 1,
-                                        e
-                                      )
-                                    }
-                                    style={{ position: "absolute", zIndex: 1 }}
-                                  />
-                                )}
-                            </div>
-                          </td>
-                        ))}
-                      </tr>
-                    ))
+                              >
+                                {task.taskName}
+                              </td>
+                            </Tooltip>
+
+                            <td>
+                              {Object.values(hours[task.taskId] || {}).reduce(
+                                (acc, hour) => acc + Number(hour || 0),
+                                0
+                              )}
+                            </td>
+                            {Array.from(
+                              { length: visibleDays },
+                              (_, dayIndex) => (
+                                <td key={dayIndex + 1}>
+                                  <div className="input-comment-container">
+                                    <input
+                                      className={`custom-input ${
+                                        isWeekend(dayIndex + 1)
+                                          ? "weekend-input"
+                                          : ""
+                                      } ${
+                                        isHoliday(dayIndex + 1)
+                                          ? "holiday-input"
+                                          : ""
+                                      }`}
+                                      type="number"
+                                      placeholder="Hour"
+                                      value={
+                                        hours[task.taskId]?.[dayIndex + 1] || ""
+                                      }
+                                      onChange={(e) =>
+                                        handleHourChange(
+                                          task.taskId,
+                                          dayIndex + 1,
+                                          e
+                                        )
+                                      }
+                                      onClick={() =>
+                                        handleInputClick(
+                                          task.taskId,
+                                          dayIndex + 1,
+                                          task.employeeId
+                                        )
+                                      }
+                                      disabled={isDisabled}
+                                    />
+                                    <Tooltip title="Comment">
+                                      <CommentOutlined
+                                        className="comment-icon"
+                                        onClick={() =>
+                                          textAreaClickHandler(
+                                            task.taskId,
+                                            dayIndex + 1
+                                          )
+                                        }
+                                      />
+                                    </Tooltip>
+                                    {activeComment &&
+                                      activeComment.taskId === task.taskId &&
+                                      activeComment.day === dayIndex + 1 && (
+                                        <textarea
+                                          value={
+                                            comments[task.taskId]?.[
+                                              dayIndex + 1
+                                            ] || ""
+                                          }
+                                          onChange={(e) =>
+                                            handleCommentChange(
+                                              task.taskId,
+                                              dayIndex + 1,
+                                              e
+                                            )
+                                          }
+                                          style={{
+                                            position: "absolute",
+                                            zIndex: 1,
+                                          }}
+                                        />
+                                      )}
+                                  </div>
+                                </td>
+                              )
+                            )}
+                          </tr>
+                        );
+                      } else {
+                        return null; 
+                      }
+                    })
                   ) : (
                     <h6>No data</h6>
                   )}
+
+                  <tr>
+                    <td>Total</td>
+                    <td></td>
+                    {Array.from({ length: visibleDays }, (_, dayIndex) => (
+                      <td key={dayIndex + 1}>
+                        <input
+                          className={`custom-input ${
+                            isWeekend(dayIndex + 1) ? "weekend-input" : ""
+                          } ${isHoliday(dayIndex + 1) ? "holiday-input" : ""}`}
+                          type="number"
+                          value={showEightHour[dayIndex + 1] || 0}
+                          disabled={true}
+                        />
+                      </td>
+                    ))}
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -556,6 +730,7 @@ const EmployeeScreen = () => {
               tileClassName={getClassName}
               onActiveStartDateChange={handleActiveStartDateChange}
             />
+            <HolidayMonth/>
             <Status statusObj={statusObj} />
           </div>
         </div>
@@ -580,7 +755,7 @@ const EmployeeScreen = () => {
               },
             }));
           }}
-          rows={4}
+          rows={2}
         />
       </Modal>
     </div>

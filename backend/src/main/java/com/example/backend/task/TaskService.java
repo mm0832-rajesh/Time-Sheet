@@ -1,6 +1,7 @@
 package com.example.backend.task;
 
 import java.util.List;
+import java.util.Map;
 
 public interface TaskService {
     boolean createTask(Task task);
@@ -15,5 +16,5 @@ public interface TaskService {
 
     Task getTaskByTaskId(Long taskId);
 
-    boolean updateTaskStatus(Task updateTask, Long taskId);
+    boolean updateTaskStatus(Map<String, Object> updates, Long taskId);
 }

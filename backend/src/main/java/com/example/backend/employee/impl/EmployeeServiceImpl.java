@@ -1,6 +1,7 @@
 package com.example.backend.employee.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -98,5 +99,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public List<Employee> getAllEmployees() {
         return employeeRepo.findAll();
+    }
+
+    @Override
+    public Employee getEmployeeById(String employeeId){
+        Optional<Employee> optionalEmployee = employeeRepo.findById(employeeId);
+        return optionalEmployee.orElse(null);
     }
 }

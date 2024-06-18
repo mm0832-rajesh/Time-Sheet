@@ -1,0 +1,8 @@
+.holiday-currentMonth-container {
+  margin-right: 32px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  background-color: rgb(223, 220, 220);
+  color: rgb(249, 115, 115);
+}

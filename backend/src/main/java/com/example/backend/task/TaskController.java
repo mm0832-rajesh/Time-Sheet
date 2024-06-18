@@ -1,6 +1,7 @@
 package com.example.backend.task;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -67,9 +68,9 @@ public class TaskController {
     }
 
     @PatchMapping("/taskUpdate/{taskId}")
-    public ResponseEntity<String> updateTaskStatus(@RequestBody Task updateTask, @PathVariable Long taskId) {
-        return taskServiceImpl.updateTaskStatus(updateTask, taskId) ? new ResponseEntity<>("Task updated", HttpStatus.OK)
-                : new ResponseEntity<>("Task updated", HttpStatus.NOT_IMPLEMENTED);
+    public ResponseEntity<String> updateTaskStatus(@RequestBody Map<String, Object> updates, @PathVariable Long taskId) {
+        return taskServiceImpl.updateTaskStatus(updates, taskId) ? new ResponseEntity<>("Task updated", HttpStatus.OK)
+                : new ResponseEntity<>("Task updation failed", HttpStatus.NOT_IMPLEMENTED);
     }
 
 }

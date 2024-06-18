@@ -1,12 +1,15 @@
 package com.example.backend.task.impl;
 
 import java.util.List;
+import java.util.Map;
 // import java.util.Optional;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.backend.employee.Employee;
+import com.example.backend.employee.impl.EmployeeServiceImpl;
 import com.example.backend.task.Task;
 import com.example.backend.task.TaskRepo;
 import com.example.backend.task.TaskService;
@@ -16,6 +19,9 @@ public class TaskServiceImpl implements TaskService {
 
     @Autowired
     private TaskRepo taskRepo;
+
+    @Autowired
+    private EmployeeServiceImpl employeeImpl;
 
     @Override
     public boolean createTask(Task task) {
@@ -46,7 +52,9 @@ public class TaskServiceImpl implements TaskService {
             task.setLineManRemarks(updateTask.getLineManRemarks());
             task.setLineManStatus(updateTask.getLineManStatus());
             task.setOverallStatus(updateTask.getOverallStatus());
-            // task.setEmployeeId(updateTask.getEmployeeId());
+            task.setEmpStatus(updateTask.getEmpStatus());
+            task.setEmployeeId(updateTask.getEmployeeId());
+            task.setEmployeeName(updateTask.getEmployeeName());
             taskRepo.save(task);
             return true;
         } else {
@@ -97,14 +105,44 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public boolean updateTaskStatus(Task updateTask, Long taskId) {
+   public boolean updateTaskStatus( Map<String, Object> updates, Long taskId) {
+        String approverId= (String)updates.get("approverId");
         Optional<Task> taskOptional = taskRepo.findById(taskId);
         if (taskOptional.isPresent()) {
             Task task = taskOptional.get();
-            task.setOverallStatus(updateTask.getOverallStatus());
-            task.setLineManRemarks(updateTask.getLineManRemarks());
+            String empId= task.getEmployeeId();
+            String assignedApproverId= task.getApproverId();
+            Employee employee = employeeImpl.getEmployeeById(empId);
+            String lineManagerId= employee.getLineManager();
+
+            if(approverId.equals(lineManagerId)){           
+             task.setOverallStatus((String)updates.get("status"));
+             task.setLineManRemarks((String)updates.get("remarks"));
+             //task.setApproverRemarks((String)updates.get("remarks"));
+             //task.setApproverStatus((String)updates.get("status"));
+             task.setLineManStatus((String)updates.get("status"));
+             if(updates.get("status").equals("approved")){
+             task.setCurrentApproverId(null);
+             }
+            else if(updates.get("status").equals("rejected")){
+                    task.setCurrentApproverId(assignedApproverId);
+                }
             taskRepo.save(task);
+            }
+            else{
+                task.setApproverRemarks((String)updates.get("remarks"));
+                task.setApproverStatus((String)updates.get("status"));
+                if(updates.get("status").equals("approved")){
+                task.setCurrentApproverId(lineManagerId);
+                task.setOverallStatus("submitted");
+                }
+                else{
+                    task.setOverallStatus("rejected");
+                }
+                taskRepo.save(task);
+            }
             return true;
+            
         } else {
             return false;
         }

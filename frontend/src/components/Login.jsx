@@ -25,20 +25,13 @@ const Login = () => {
   const submitHandler = (e) => {
     e.preventDefault();
 
-    const managerRoles = ["Project Manager", "Team Manager", "HR"];
-
     // Check if the input data matches any employee's credentials
     const employee = employeeData.find(
       (emp) => inpData.id === emp.empId && inpData.password === emp.empPassword
     );
 
     if (employee) {
-      // Check if the found employee is a manager
-      if (managerRoles.includes(employee.role)) {
-        navigate("/manager", { state: { manager: employee } });
-      } else {
         navigate("/employee", { state: { employee } });
-      }
     } else {
       enqueueSnackbar("Wrong Login ID or Password", { variant: "error" });
     }
@@ -106,7 +99,7 @@ const Login = () => {
               </div>
             </div>
             <div className="forgot-password">
-              <a href="#">Forgot password?</a>
+              <p>Forgot password?</p>
             </div>
             <button className="loginSCreenBtn" type="submit">
               Login

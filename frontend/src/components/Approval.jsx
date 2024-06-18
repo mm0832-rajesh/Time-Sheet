@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Button, Table, Form } from 'react-bootstrap';
 import { useSnackbar } from 'notistack';
+import  "./Approval.css"
 
-const Approval = () => {
+const Approval = ({approverId}) => {
+  console.log(approverId);
   const { enqueueSnackbar } = useSnackbar();
   const [show, setShow] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState({});
@@ -18,14 +20,14 @@ const Approval = () => {
       try {
         const response = await fetch("http://localhost:8000/task");
         const res = await response.json();
-        const filteredTasks = res.filter(task => task.status === 'submitted');
+        const filteredTasks = res.filter(task => task.overallStatus === 'submitted' && task.currentApproverId===approverId );
         setTaskData(filteredTasks);
       } catch (error) {
         console.log(`Error is :- ${error}`);
       }
     };
     fetchTasks();
-  }, []);
+  }, [approverId]);
 
   useEffect(() => {
     const fetchTimeSheet = async () => {
@@ -76,10 +78,12 @@ const Approval = () => {
   const handleDetails = (taskId) => {
     const filteredTimesheetData = timeSheetData.filter(timesheet => timesheet.task.taskId === taskId);
     setTimesheetDetails(filteredTimesheetData);
+    console.log(timesheetDetails);
     setDetailsShow(true);
   };
 
   const updateTask = async (status) => {
+    // const employeeid= selectedEmployee.empId;
     try {
       const response = await fetch(`http://localhost:8000/task/taskUpdate/${selectedEmployee.taskId}`, {
         method: 'PATCH',
@@ -87,10 +91,10 @@ const Approval = () => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ status, remarks })
+        body: JSON.stringify({ status, remarks, approverId})
       });
       if (response.ok) {
-        enqueueSnackbar(`${selectedEmployee.taskName} for ${selectedEmployee.empName} is ${status}`, { variant: 'success' });
+        enqueueSnackbar(`${selectedEmployee.taskName} is ${status}`, { variant: 'success' });
         handleClose();
         setTaskData(prevData => prevData.filter(task => task.taskId !== selectedEmployee.taskId));
         setProcessedData(prevData => prevData.filter(task => task.taskId !== selectedEmployee.taskId));
@@ -114,10 +118,10 @@ const Approval = () => {
   return (
     <>
       <Table striped bordered hover>
-        <thead>
+        <thead className="table-header">
           <tr>
-            <th>Emp Id</th>
-            <th>Emp Name</th>
+            <th>Employee Id</th>
+            <th>Employee Name</th>
             <th>Task Name</th>
             <th>Assigned Hour</th>
             <th>Submitted</th>
@@ -125,7 +129,7 @@ const Approval = () => {
           </tr>
         </thead>
         <tbody>
-          {processedData.map((employee) => (
+          {approverId && processedData.map((employee) => (
             <tr key={employee.taskId}>
               <td>{employee.empId}</td>
               <td>{employee.empName}</td>
@@ -224,7 +228,7 @@ const Approval = () => {
 
       <Modal show={detailsShow} onHide={() => setDetailsShow(false)}>
         <Modal.Header>
-          <Modal.Title>Timesheet Details for  </Modal.Title>
+          <Modal.Title>Timesheet Details for "  " </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Table striped bordered hover>

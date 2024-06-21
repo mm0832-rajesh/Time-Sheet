@@ -42,7 +42,7 @@ public class TaskServiceImpl implements TaskService {
             task.setTaskName(updateTask.getTaskName());
             task.setStartDate(updateTask.getStartDate());
             task.setEndDate(updateTask.getEndDate());
-            task.setPlanedHour(updateTask.getPlanedHour());
+            task.setPlannedHour(updateTask.getPlannedHour());
             task.setBillableHour(updateTask.getBillableHour());
             task.setAssignerId(updateTask.getAssignerId());
             task.setApproverId(updateTask.getApproverId());
@@ -81,7 +81,7 @@ public class TaskServiceImpl implements TaskService {
             task.setTaskName(updateTask.getTaskName());
             task.setStartDate(updateTask.getStartDate());
             task.setEndDate(updateTask.getEndDate());
-            task.setPlanedHour(updateTask.getPlanedHour());
+            task.setPlannedHour(updateTask.getPlannedHour());
             task.setBillableHour(updateTask.getBillableHour());
             task.setAssignerId(updateTask.getAssignerId());
             task.setApproverId(updateTask.getApproverId());
@@ -121,10 +121,10 @@ public class TaskServiceImpl implements TaskService {
              //task.setApproverRemarks((String)updates.get("remarks"));
              //task.setApproverStatus((String)updates.get("status"));
              task.setLineManStatus((String)updates.get("status"));
-             if(updates.get("status").equals("approved")){
-             task.setCurrentApproverId(null);
-             }
-            else if(updates.get("status").equals("rejected")){
+            //  if(updates.get("status").equals("approved")){
+            //  task.setCurrentApproverId(null);
+            //  }
+             if(updates.get("status").equals("rejected")){
                     task.setCurrentApproverId(assignedApproverId);
                 }
             taskRepo.save(task);

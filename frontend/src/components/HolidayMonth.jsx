@@ -26,6 +26,8 @@ const HolidayMonth = () => {
   }, []);
 
   return (
+    <div className="h-cont">
+      <h3 className="holi-h3">Holi-Day</h3>
     <div className="holiday-currentMonth-container">
       {getHolidayData.map((item) => {
         return (
@@ -35,6 +37,7 @@ const HolidayMonth = () => {
           </div>
         );
       })}
+    </div>
     </div>
   );
 };

@@ -179,10 +179,8 @@ td {
 }
 
 .react-calendar {
-  /* width: 100%; */
-  /* max-width: 400px;  */
   width: 500px;
-  margin: 0 auto;
+  margin-left: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border: none;
   display: flex;
@@ -257,8 +255,8 @@ td {
   font-size: 18px;
   border: none;
   background: none;
-  padding-left: 40px;
-  padding-right: 40px;
+  padding-left: 35px;
+  padding-right: 35px;
 }
 
 .timesheetBtns {
@@ -294,6 +292,13 @@ td {
   width: 60px;
   padding: 5px;
   margin-right: 2px;
+}
+
+.custom-input2 {
+  width: 60px;
+  padding: 5px;
+  margin-right: 22px;
+  margin-bottom: 2px;
 }
 
 .weekend-input {

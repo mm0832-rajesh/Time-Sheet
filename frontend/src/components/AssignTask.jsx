@@ -8,8 +8,9 @@ const AssignTask = ({ manager }) => {
   const [formData, setFormData] = useState({
     employeeId: "",
     assignerId: manager.empId,
-    approverId: manager.empId,
-    currentApproverId: manager.empId,
+    // approverId: manager.empId,
+    approverId: "",
+    currentApproverId: "",
     employeeName: "",
     taskName: "",
     startDate: "",
@@ -36,8 +37,10 @@ const AssignTask = ({ manager }) => {
     setFormData({
       employeeId: "",
       assignerId: manager.empId,
-      approverId: manager.empId,
-      currentApproverId: manager.empId,
+      // approverId: manager.empId,
+      approverId: "",
+      // currentApproverId: manager.empId,
+      currentApproverId: "",
       employeeName: "",
       taskName: "",
       startDate: "",
@@ -54,7 +57,8 @@ const AssignTask = ({ manager }) => {
       !formData.employeeName ||
       !formData.taskName ||
       !formData.startDate ||
-      !formData.endDate
+      !formData.endDate ||
+      !formData.approverId
     ) {
       alert("Please fill the required fields");
       return;
@@ -67,14 +71,13 @@ const AssignTask = ({ manager }) => {
 
     try {
       if (tempId) {
-
-         // Preserve existing IDs when updating
-      const updatedFormData = {
-        ...formData,
-        assignerId: manager.empId,
-        approverId: manager.empId,
-        currentApproverId: manager.empId,
-      };
+        // Preserve existing IDs when updating
+        const updatedFormData = {
+          ...formData,
+          assignerId: manager.empId,
+          // approverId: manager.empId,
+          // currentApproverId: manager.empId,
+        };
 
         await fetch(`http://localhost:8000/task/${tempId}`, {
           method: "PUT",
@@ -99,8 +102,10 @@ const AssignTask = ({ manager }) => {
     setFormData({
       employeeId: "",
       assignerId: manager.empId,
-      approverId: manager.empId,
-      currentApproverId: manager.empId,
+      // approverId: manager.empId,
+      approverId: "",
+      // currentApproverId: manager.empId,
+      currentApproverId: "",
       employeeName: "",
       taskName: "",
       startDate: "",
@@ -111,17 +116,43 @@ const AssignTask = ({ manager }) => {
 
     setAssignTaskBtn(false);
     setShowPopup(false);
-    fetchTaskData();  // Refresh the task list after saving
+    fetchTaskData(); // Refresh the task list after saving
   };
+
+  // const handleChange = (e) => {
+  //   const { name, value } = e.target;
+
+  //   if (name === "employeeId") {
+  //     const selectedEmployee = associatedEmployeeData.find(
+  //       (employee) => employee.empId === value
+  //     );
+
+  //     if (selectedEmployee) {
+  //       setFormData((prevData) => ({
+  //         ...prevData,
+  //         employeeId: value,
+  //         employeeName: selectedEmployee.empName,
+  //       }));
+  //     } else {
+  //       setFormData((prevData) => ({
+  //         ...prevData,
+  //         employeeId: value,
+  //         employeeName: "",
+  //       }));
+  //     }
+  //   } else {
+  //     setFormData((prevData) => ({ ...prevData, [name]: value }));
+  //   }
+  // };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
+  
     if (name === "employeeId") {
       const selectedEmployee = associatedEmployeeData.find(
         (employee) => employee.empId === value
       );
-
+  
       if (selectedEmployee) {
         setFormData((prevData) => ({
           ...prevData,
@@ -135,10 +166,14 @@ const AssignTask = ({ manager }) => {
           employeeName: "",
         }));
       }
-    } else {
+    } else if (name === "approverId") {
+      setFormData((prevData) => ({ ...prevData, approverId: value, currentApproverId: value }));
+    } 
+    else {
       setFormData((prevData) => ({ ...prevData, [name]: value }));
     }
   };
+  
 
   const editHandler = (id) => {
     const taskToEdit = TaskData.find((task) => task.taskId === id);
@@ -152,6 +187,8 @@ const AssignTask = ({ manager }) => {
         endDate: taskToEdit.endDate,
         plannedHour: taskToEdit.plannedHour,
         billableHour: taskToEdit.billableHour,
+        approverId: taskToEdit.approverId,
+        currentApproverId: taskToEdit.currentApproverId,
       });
       setAssignTaskBtn(true);
       setShowPopup(true);
@@ -163,7 +200,9 @@ const AssignTask = ({ manager }) => {
       const response = await fetch("http://localhost:8000/task");
       const data = await response.json();
       // Filter tasks to include only those assigned by the logged-in manager
-      const filteredData = data.filter(task => task.assignerId === manager.empId);
+      const filteredData = data.filter(
+        (task) => task.assignerId === manager.empId
+      );
       setTaskData(filteredData);
     } catch (error) {
       console.log("Error is : ", error);
@@ -172,7 +211,7 @@ const AssignTask = ({ manager }) => {
 
   useEffect(() => {
     fetchTaskData();
-  }, [manager.empId]);  // Fetch tasks only when manager.empId changes
+  }, [manager.empId]); // Fetch tasks only when manager.empId changes
 
   useEffect(() => {
     const fetchEmployeeData = async () => {
@@ -239,7 +278,7 @@ const AssignTask = ({ manager }) => {
                     <option value="">Select Employee ID</option>
                     {associatedEmployeeData.map((employee) => (
                       <option key={employee.empId} value={employee.empId}>
-                        {employee.empId}
+                        {`${employee.empId}(${employee.empName})`}
                       </option>
                     ))}
                   </select>
@@ -316,6 +355,25 @@ const AssignTask = ({ manager }) => {
                     value={formData.billableHour}
                     onChange={handleChange}
                   />
+
+                  <label htmlFor="approverId">
+                    Approver Id<span className="required">* </span>
+                  </label>
+                  <select
+                    name="approverId"
+                    id="approverId"
+                    value={formData.approverId}
+                    onChange={handleChange}
+                  >
+                    <option value="">Select Approver ID</option>
+                    {employeeData.slice(3).map((employee) => (
+                      <option key={employee.empId} value={employee.empId}>
+                        {`${employee.empId}(${employee.empName})`}
+                      </option>
+                    ))}
+                  </select>
+                  <br />
+                  <br />
                 </div>
               </div>
               <div className="form-btns">
@@ -350,7 +408,10 @@ const AssignTask = ({ manager }) => {
             <tbody>
               {TaskData &&
                 TaskData.map((item) => (
-                  <tr key={item.taskId} onClick={() => editHandler(item.taskId)}>
+                  <tr
+                    key={item.taskId}
+                    onClick={() => editHandler(item.taskId)}
+                  >
                     <td>{item.employeeId}</td>
                     <td>{item.employeeName}</td>
                     <td>{item.taskName}</td>

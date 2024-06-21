@@ -14,6 +14,8 @@ import { Tooltip, Modal, Input } from "antd";
 import AssignTask from "./AssignTask";
 import Approval from "./Approval";
 import HolidayMonth from "./HolidayMonth";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const EmployeeScreen = () => {
   const [showHoliday, setShowHoliday] = useState(false);
@@ -61,6 +63,8 @@ const EmployeeScreen = () => {
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
 
   const [filteredEmpTaskData, setFilteredEmpTaskData] = useState([]);
+
+  const [hideBtn, setHideBtn] = useState(false);
 
   const handleOptionClick = (option, handler) => {
     setActive(option);
@@ -263,33 +267,96 @@ const EmployeeScreen = () => {
 
         createObjects = [];
       }
-      alert("Timesheet sucessfully saved");
+      // alert("Timesheet sucessfully saved");
+      toast.success("Timesheet successfully saved");
       // Await all update promises
       // await Promise.all(updatePromises);
     } catch (error) {
       console.log("Error is : ", error);
+      toast.error("Error saving timesheet");
     }
   };
+
+  // const submitTimesheetHandler = async () => {
+  //   console.log(showEightHour);
+
+  //   try {
+  //     const invalidDays = [];
+  //     Object.entries(showEightHour).forEach(([day, hours]) => {
+  //       if (hours === 0) {
+  //         invalidDays.push(day);
+  //       }
+  //     });
+  //     if (invalidDays.length > 0) {
+  //       // alert(`Total hours for day(s) ${invalidDays.join(', ')} should be exactly 8. Please correct before submitting.`);
+  //       toast.error(
+  //         `Total hours for day(s) ${invalidDays.join(
+  //           ", "
+  //         )} should not be empty. Please correct before submitting.`
+  //       );
+  //       return;
+  //     }
+
+  //     for (const task of empTaskData) {
+  //       const taskResponse = await fetch(
+  //         `http://localhost:8000/task/${task.taskId}`
+  //       );
+  //       if (!taskResponse.ok) {
+  //         throw new Error(`Failed to fetch task with ID ${task.taskId}`);
+  //       }
+  //       const taskData = await taskResponse.json();
+  //       // console.log(taskData);
+  //       taskData.overallStatus = "submitted";
+  //       taskData.empStatus = "submitted";
+
+  //       console.log(taskData.empStatus);
+
+  //       const updateResponse = await fetch(
+  //         `http://localhost:8000/task/${task.taskId}`,
+  //         {
+  //           method: "PUT",
+  //           headers: {
+  //             "Content-Type": "application/json",
+  //           },
+  //           body: JSON.stringify(taskData),
+  //         }
+  //       );
+
+  //       if (!updateResponse.ok) {
+  //         throw new Error(`Failed to update task with ID ${task.taskId}`);
+  //       }
+  //     }
+
+  //     // alert("All timesheets submitted successfully.");
+  //     toast.success("All timesheets submitted successfully.");
+  //     setIsDisabled(true);
+  //   } catch (error) {
+  //     console.error("Error updating task status:", error);
+  //     // alert("Error submitting timesheets. Please try again later.");
+  //     toast.error("Error submitting timesheets. Please try again later.");
+  //   }
+  // };
 
   const submitTimesheetHandler = async () => {
     console.log(showEightHour);
 
     try {
-      // const invalidDays = [];
-      // Object.entries(showEightHour).forEach(([day, hours]) => {
-      //   if (hours !== 8) {
-      //     invalidDays.push(day);
-      //   }
-      // });
+      const invalidDays = [];
+      Object.entries(showEightHour).forEach(([day, hours]) => {
+        if (hours === 0) {
+          invalidDays.push(day);
+        }
+      });
+      if (invalidDays.length > 0) {
+        toast.error(
+          `Total hours for day(s) ${invalidDays.join(
+            ", "
+          )} should not be empty. Please correct before submitting.`
+        );
+        return;
+      }
 
-      // if (invalidDays.length > 0) {
-      //   alert(
-      //     `Total hours for day(s) ${invalidDays.join(
-      //       ", "
-      //     )} should be exactly 8. Please correct before submitting.`
-      //   );
-      //   return;
-      // }
+      const updatedTasks = [...empTaskData]; // Copy the current task state
 
       for (const task of empTaskData) {
         const taskResponse = await fetch(
@@ -299,11 +366,8 @@ const EmployeeScreen = () => {
           throw new Error(`Failed to fetch task with ID ${task.taskId}`);
         }
         const taskData = await taskResponse.json();
-        // console.log(taskData);
         taskData.overallStatus = "submitted";
         taskData.empStatus = "submitted";
-
-        console.log(taskData.empStatus);
 
         const updateResponse = await fetch(
           `http://localhost:8000/task/${task.taskId}`,
@@ -319,13 +383,23 @@ const EmployeeScreen = () => {
         if (!updateResponse.ok) {
           throw new Error(`Failed to update task with ID ${task.taskId}`);
         }
+
+        // Update the local task state
+        const taskIndex = updatedTasks.findIndex(
+          (t) => t.taskId === task.taskId
+        );
+        if (taskIndex !== -1) {
+          updatedTasks[taskIndex] = { ...task, ...taskData };
+        }
       }
 
-      alert("All timesheets submitted successfully.");
+      setEmpTaskData(updatedTasks); // Update the state with the modified tasks
+
+      toast.success("All timesheets submitted successfully.");
       setIsDisabled(true);
     } catch (error) {
       console.error("Error updating task status:", error);
-      alert("Error submitting timesheets. Please try again later.");
+      toast.error("Error submitting timesheets. Please try again later.");
     }
   };
 
@@ -335,12 +409,27 @@ const EmployeeScreen = () => {
         const response = await fetch("http://localhost:8000/task");
         const tasksData = await response.json();
         setTaskData(tasksData);
+
+        const empAllTasks = taskData.filter((item) => {
+          return item.employeeId === employee.empId
+        })
+        empAllTasks.forEach((item) => {
+          if (
+            item.overallStatus === "submitted" ||
+            item.overallStatus === "approved"
+          ) {
+            setHideBtn(true);
+          } else {
+            setHideBtn(false);
+            return;
+          }
+        });
       } catch (error) {
         console.log(`Error is :- ${error}`);
       }
     };
     fetchTasks();
-  }, []);
+  }, [employee.empId, taskData]);
 
   useEffect(() => {
     const matchEmpId = () => {
@@ -482,6 +571,7 @@ const EmployeeScreen = () => {
 
   return (
     <div className="empScreen-container">
+      <ToastContainer />
       <div className="top">
         <div className="empHeader">
           <div className="avatar">🧑‍💼</div>
@@ -544,17 +634,24 @@ const EmployeeScreen = () => {
       {showTimesheet && (
         <div className="timesheetContainer">
           <div className="upperPart">
+            {/* {employee &&  */}
             <div className="timesheetBtns">
-              <button className="saveTimesheet" onClick={saveTimesheetHandler}>
+              <button
+                className="saveTimesheet"
+                style={{ display: hideBtn ? "none" : "block" }}
+                onClick={saveTimesheetHandler}
+              >
                 <SaveOutlined /> Save
               </button>
               <button
                 className="submitTimesheet"
+                style={{ display: hideBtn ? "none" : "block" }}
                 onClick={submitTimesheetHandler}
               >
                 <UploadOutlined /> Submit
               </button>
             </div>
+            {/* } */}
             <div className="table-container">
               <table>
                 <thead>
@@ -654,7 +751,12 @@ const EmployeeScreen = () => {
                                           task.employeeId
                                         )
                                       }
-                                      disabled={isDisabled}
+                                      disabled={
+                                        task.overallStatus === "submitted" ||
+                                        task.overallStatus === "approved"
+                                          ? true
+                                          : false
+                                      }
                                     />
                                     <Tooltip title="Comment">
                                       <CommentOutlined
@@ -696,7 +798,7 @@ const EmployeeScreen = () => {
                           </tr>
                         );
                       } else {
-                        return null; 
+                        return null;
                       }
                     })
                   ) : (
@@ -709,7 +811,7 @@ const EmployeeScreen = () => {
                     {Array.from({ length: visibleDays }, (_, dayIndex) => (
                       <td key={dayIndex + 1}>
                         <input
-                          className={`custom-input ${
+                          className={`custom-input2 ${
                             isWeekend(dayIndex + 1) ? "weekend-input" : ""
                           } ${isHoliday(dayIndex + 1) ? "holiday-input" : ""}`}
                           type="number"
@@ -730,7 +832,22 @@ const EmployeeScreen = () => {
               tileClassName={getClassName}
               onActiveStartDateChange={handleActiveStartDateChange}
             />
-            <HolidayMonth/>
+            <div className="infoContainer">
+              {[
+                { color: "violet", label: "Today" },
+                { color: "red", label: "Holiday" },
+                { color: "sky", label: "Weekend" },
+                { color: "blue", label: "Applied Leave" },
+                { color: "darkGreen", label: "Full Day Leave" },
+                { color: "green", label: "Half Day Leave" },
+              ].map((day, index) => (
+                <div className="day" key={index}>
+                  <div className={`box ${day.color}`}></div>
+                  <div className="dayName">{day.label}</div>
+                </div>
+              ))}
+            </div>
+            <HolidayMonth />
             <Status statusObj={statusObj} />
           </div>
         </div>

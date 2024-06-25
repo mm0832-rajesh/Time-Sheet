@@ -277,66 +277,6 @@ const EmployeeScreen = () => {
     }
   };
 
-  // const submitTimesheetHandler = async () => {
-  //   console.log(showEightHour);
-
-  //   try {
-  //     const invalidDays = [];
-  //     Object.entries(showEightHour).forEach(([day, hours]) => {
-  //       if (hours === 0) {
-  //         invalidDays.push(day);
-  //       }
-  //     });
-  //     if (invalidDays.length > 0) {
-  //       // alert(`Total hours for day(s) ${invalidDays.join(', ')} should be exactly 8. Please correct before submitting.`);
-  //       toast.error(
-  //         `Total hours for day(s) ${invalidDays.join(
-  //           ", "
-  //         )} should not be empty. Please correct before submitting.`
-  //       );
-  //       return;
-  //     }
-
-  //     for (const task of empTaskData) {
-  //       const taskResponse = await fetch(
-  //         `http://localhost:8000/task/${task.taskId}`
-  //       );
-  //       if (!taskResponse.ok) {
-  //         throw new Error(`Failed to fetch task with ID ${task.taskId}`);
-  //       }
-  //       const taskData = await taskResponse.json();
-  //       // console.log(taskData);
-  //       taskData.overallStatus = "submitted";
-  //       taskData.empStatus = "submitted";
-
-  //       console.log(taskData.empStatus);
-
-  //       const updateResponse = await fetch(
-  //         `http://localhost:8000/task/${task.taskId}`,
-  //         {
-  //           method: "PUT",
-  //           headers: {
-  //             "Content-Type": "application/json",
-  //           },
-  //           body: JSON.stringify(taskData),
-  //         }
-  //       );
-
-  //       if (!updateResponse.ok) {
-  //         throw new Error(`Failed to update task with ID ${task.taskId}`);
-  //       }
-  //     }
-
-  //     // alert("All timesheets submitted successfully.");
-  //     toast.success("All timesheets submitted successfully.");
-  //     setIsDisabled(true);
-  //   } catch (error) {
-  //     console.error("Error updating task status:", error);
-  //     // alert("Error submitting timesheets. Please try again later.");
-  //     toast.error("Error submitting timesheets. Please try again later.");
-  //   }
-  // };
-
   const submitTimesheetHandler = async () => {
     console.log(showEightHour);
 
@@ -366,7 +306,10 @@ const EmployeeScreen = () => {
           throw new Error(`Failed to fetch task with ID ${task.taskId}`);
         }
         const taskData = await taskResponse.json();
-        taskData.overallStatus = "submitted";
+        if (taskData.overallStatus !== "approved") {
+          taskData.overallStatus = "submitted";
+        }
+        // taskData.overallStatus = "submitted";
         taskData.empStatus = "submitted";
 
         const updateResponse = await fetch(
@@ -397,6 +340,7 @@ const EmployeeScreen = () => {
 
       toast.success("All timesheets submitted successfully.");
       setIsDisabled(true);
+      // setHideBtn(true)
     } catch (error) {
       console.error("Error updating task status:", error);
       toast.error("Error submitting timesheets. Please try again later.");
@@ -411,8 +355,8 @@ const EmployeeScreen = () => {
         setTaskData(tasksData);
 
         const empAllTasks = taskData.filter((item) => {
-          return item.employeeId === employee.empId
-        })
+          return item.employeeId === employee.empId;
+        });
         empAllTasks.forEach((item) => {
           if (
             item.overallStatus === "submitted" ||
@@ -429,7 +373,7 @@ const EmployeeScreen = () => {
       }
     };
     fetchTasks();
-  }, [employee.empId, taskData]);
+  }, [employee.empId]);
 
   useEffect(() => {
     const matchEmpId = () => {
@@ -568,6 +512,26 @@ const EmployeeScreen = () => {
     });
     setFilteredEmpTaskData(filteredTasks);
   }, [empTaskData, currentMonth, currentYear]);
+
+  useEffect(() => {
+    const fetchData = () => {
+      const empAllTasks = taskData.filter((item) => {
+        return item.employeeId === employee.empId;
+      });
+      empAllTasks.forEach((item) => {
+        if (
+          item.overallStatus === "submitted" ||
+          item.overallStatus === "approved"
+        ) {
+          setHideBtn(true);
+        } else {
+          setHideBtn(false);
+          return;
+        }
+      });
+    };
+    fetchData();
+  }, [taskData]);
 
   return (
     <div className="empScreen-container">
@@ -831,6 +795,8 @@ const EmployeeScreen = () => {
               value={date}
               tileClassName={getClassName}
               onActiveStartDateChange={handleActiveStartDateChange}
+              locale="en-US"
+              firstDayOfWeek={0}
             />
             <div className="infoContainer">
               {[

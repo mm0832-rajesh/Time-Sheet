@@ -1,104 +1,120 @@
 .rejected-status {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-left: 40%;
-  }
-  
-  
-  .progress-indicator {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    padding-left: 20px;
-  }
-  
-  .step {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-  }
-  
-  .step-number {
-    font-size: 18px;
-    font-weight: bold;
-    color: #666;
-    transition: background-color 0.6s ease-in-out, color 0.6s ease-in-out;
-  }
-  
-  .step-label {
-    font-size: 18px;
-    padding-top: 20px;
-    padding-left: 10px;
-    padding-right: 10px;
-    color: #666;
-    transition: color 0.6s ease-in-out;
-  }
-  
-  .step::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    transform: translateY(10px);
-    left:0;
-    height: 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-left: 40%;
+}
+
+.progress-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding-left: 20px;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.step-number {
+  font-size: 18px;
+  font-weight: bold;
+  color: #666;
+  transition: background-color 0.6s ease-in-out, color 0.6s ease-in-out;
+}
+
+.step-label {
+  font-size: 18px;
+  padding-top: 20px;
+  padding-left: 10px;
+  padding-right: 10px;
+  color: #666;
+  transition: color 0.6s ease-in-out;
+}
+
+.step::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  transform: translateY(10px);
+  left: 0;
+  height: 2px;
+  background-color: #ddd;
+  z-index: -1;
+  transition: width 0.5s ease-in-out;
+}
+
+.step.completed .step-number {
+  animation: stepNumberAnimation 0.5s forwards;
+  padding: 5px 13px;
+  border-radius: 50%;
+}
+
+.step.completed:nth-child(2) .step-number {
+  animation-delay: 0.45s; 
+}
+
+.step.completed:nth-child(3) .step-number {
+  animation-delay: 0.95s; 
+}
+
+.step.latest .step-number {
+  animation: stepNumberAnimation 0.5s forwards, pulsate 1.5s infinite;
+}
+
+.step.completed .step-label {
+  color: #4CAF50;
+}
+
+.step.completed::before {
+  animation: progressAnimation 0.5s forwards;
+}
+
+.step.completed:nth-child(2)::before {
+  animation-delay: 0.45s; 
+}
+
+.step.completed:nth-child(3)::before {
+  animation-delay: 0.95s; 
+}
+
+@keyframes progressAnimation {
+  0% {
+    width: 0;
     background-color: #ddd;
-    z-index: -1;
-    transition: width 0.5s ease-in-out;
   }
-  
-  .step.completed .step-number {
-    animation: stepNumberAnimation 0.5s forwards;
-    padding: 5px 13px;
-    border-radius: 50%;
-    animation-delay: 0s; 
+  100% {
+    width: 100%;
+    background-color: #4CAF50;
   }
-  
-  .step.completed:nth-child(2) .step-number {
-    animation-delay: 0.45s; 
+}
+
+@keyframes stepNumberAnimation {
+  0% {
+    background-color: #ddd;
+    color: #666;
   }
-  
-  .step.completed:nth-child(3) .step-number {
-    animation-delay: 0.95s; 
+  100% {
+    background-color: #4CAF50;
+    color: #fff;
   }
-  
-  .step.completed .step-label {
-    color: #4CAF50;
+}
+
+@keyframes pulsate {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.1);
   }
-  
-  .step.completed::before {
-    animation: progressAnimation 0.5s forwards;
-    animation-delay: 0s; 
+  50% {
+    transform: scale(.95);
+    box-shadow: 0 0 10px 10px rgba(76, 175, 80, 0.1);
   }
-  
-  .step.completed:nth-child(2)::before {
-    animation-delay: 0.45s; 
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.2);
   }
-  
-  .step.completed:nth-child(3)::before {
-    animation-delay: 0.95s; 
-  }
-  
-  @keyframes progressAnimation {
-    0% {
-      width: 0;
-      background-color: #ddd;
-    }
-    100% {
-      width: 100%;
-      background-color: #4CAF50;
-    }
-  }
-  
-  @keyframes stepNumberAnimation {
-    0% {
-      background-color: #ddd;
-      color: #666;
-    }
-    100% {
-      background-color: #4CAF50;
-      color: #fff;
-    }
-  }
+}

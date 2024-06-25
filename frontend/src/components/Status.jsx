@@ -14,30 +14,46 @@ const Status = ({ statusObj }) => {
       try {
         const response = await fetch(`http://localhost:8000/employee`);
         const res = await response.json();
-        const empData = res.find((item) => item.empId === statusObj.currentApproverId);
-        const approverData= res.find((item)=>item.empId===statusObj.approverId)
+        const empData = res.find(
+          (item) => item.empId === statusObj.currentApproverId
+        );
+        const approverData = res.find(
+          (item) => item.empId === statusObj.approverId
+        );
         console.log(empData);
         console.log(statusObj);
         if (empData) {
           setEmpObject(empData);
         }
-        if(statusObj.overallStatus!=='submitted' && statusObj.approverStatus!=='approved' && statusObj.lineManStatus!=="approved"){
+        if (
+          statusObj.overallStatus !== "submitted" &&
+          statusObj.approverStatus !== "approved" &&
+          statusObj.lineManStatus !== "approved" &&
+          statusObj.overallStatus !== "rejected"
+        ) {
           setApproverName("");
-        }
-        else if (statusObj.overallStatus === 'submitted' && statusObj.approverStatus === 'approved') {
+          console.log("Rejected fghj status");
+        } else if (
+          statusObj.overallStatus === "submitted" &&
+          statusObj.approverStatus === "approved"
+        ) {
+          console.log("partial status");
           setOverAllStatus("Partially Approved");
           setRemarks(statusObj.approverRemarks);
           setApproverName(approverData.empName);
-        } else if (statusObj.overallStatus === 'rejected') {
+        } else if (statusObj.overallStatus === "rejected") {
           setOverAllStatus("Rejected");
+          console.log("Rejected status");
           setRemarks(statusObj.lineManRemarks || statusObj.approverRemarks);
           setApproverName(empData.empName);
-        } else if (statusObj.overallStatus === 'approved') {
+        } else if (statusObj.overallStatus === "approved") {
+          console.log("approved status");
           setOverAllStatus("Approved");
           setRemarks(statusObj.lineManRemarks);
           console.log(empData);
           setApproverName(empData.empName);
         } else {
+          console.log("submited status");
           setOverAllStatus("Submitted");
         }
       } catch (error) {
@@ -49,17 +65,35 @@ const Status = ({ statusObj }) => {
   }, [statusObj]);
 
   if (!statusObj || Object.keys(statusObj).length === 0) {
-    return( <div className="status">
-    <h2 style={{'color':'#888686', 'display':'flex', 'alignItems':'center', 'padding-left':'20%'}}>No task selected</h2>
-    </div>
-  )}
+    return (
+      <div className="status">
+        <h2
+          style={{
+            color: "#888686",
+            display: "flex",
+            alignItems: "center",
+            "padding-left": "20%",
+          }}
+        >
+          No task selected
+        </h2>
+      </div>
+    );
+  }
 
   return (
     <div className="status">
       <div className="statusContainer">
         {statusObj.taskName && (
           <div className="inputField">
-            <h2 style={{ textDecoration: 'underline', 'fontSize':'18px', 'fontWeight':'bold', 'padding-left':'30%'}}>
+            <h2
+              style={{
+                textDecoration: "underline",
+                fontSize: "18px",
+                fontWeight: "bold",
+                "padding-left": "30%",
+              }}
+            >
               {`Status for ${statusObj.taskName}`}
             </h2>
           </div>
@@ -67,7 +101,7 @@ const Status = ({ statusObj }) => {
         <div className="inputField">
           {/* <label>Overall Status:</label> */}
           {/* <input type="text" value={overAllStatus} disabled /> */}
-          <Progressbar {...statusObj}/>
+          <Progressbar {...statusObj} />
         </div>
         <div className="inputField">
           <label>Approver Name:</label>
